@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg0:#070809;--bg1:#0d0f10;--bg2:#151718;--bg3:#1c1e20;--bg4:#242628;
+  --accent:#e8f000;--accent2:#c8d400;--accent-dim:rgba(232,240,0,.11);
+  --blue:#4a9eff;--blue-dim:rgba(74,158,255,.13);
+  --red:#ff5252;--red-dim:rgba(255,82,82,.13);
+  --green:#3ecf8e;--green-dim:rgba(62,207,142,.13);
+  --orange:#ff9142;--orange-dim:rgba(255,145,66,.13);
+  --purple:#b57bff;--purple-dim:rgba(181,123,255,.13);
+  --txt1:#f4f3ef;--txt2:#8a8780;--txt3:#46433f;
+  --border:#1c1e20;--border2:#282b2e;
+  --r:16px;--rs:10px;
+  --tab-h:68px; /* tabbar height — single source of truth */
+}
+html,body{height:100%;background:#000;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;overflow:hidden}
+.phone{width:390px;height:844px;max-height:100vh;background:var(--bg0);border-radius:50px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #090a0b,0 50px 140px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.05)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+
+/* STATUS BAR */
+.sb{display:flex;justify-content:space-between;align-items:center;padding:14px 24px 0;flex-shrink:0;z-index:40;position:relative}
+.sb-time{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--txt1)}
+.sb-icons{display:flex;gap:5px;align-items:center;color:var(--txt1)}
+.sb-icons svg{width:15px;height:15px;fill:currentColor}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 10px;flex-shrink:0;z-index:35;background:var(--bg0);border-bottom:1px solid var(--border)}
+.hdr-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent);letter-spacing:-.02em;cursor:pointer}
+.hdr-logo span{color:var(--txt1)}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.hdr-lang{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--txt2);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:5px}
+.hdr-lang:active{background:var(--bg4);color:var(--txt1)}
+.hdr-score{background:var(--accent-dim);border:1px solid rgba(232,240,0,.25);border-radius:20px;padding:5px 12px;display:flex;align-items:center;gap:4px}
+.hdr-score-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--accent)}
+.hdr-score-lbl{font-size:10px;color:rgba(232,240,0,.45)}
+.hdr-menu{background:var(--bg3);border:1px solid var(--border2);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s}
+.hdr-menu:active{background:var(--bg4)}
+.hdr-menu svg{width:16px;height:16px;stroke:var(--txt2);fill:none;stroke-width:2;stroke-linecap:round}
+
+/* CONTENT SHELL */
+.content{flex:1;position:relative;overflow:hidden;min-height:0}
+
+/* VIEWS — scrollable, padding-bottom = tabbar height so nothing hides behind tab */
+.view{display:none;flex-direction:column;height:100%;overflow-y:auto;padding-bottom:var(--tab-h)}
+.view.active{display:flex;animation:fadeUp .24s cubic-bezier(.2,.8,.4,1) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* TABBAR — fixed height via CSS var */
+.tabbar{height:var(--tab-h);display:flex;flex-shrink:0;background:rgba(7,8,9,.97);border-top:1px solid var(--border);padding:8px 4px 20px;z-index:35;backdrop-filter:blur(20px)}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:5px 2px;color:var(--txt3);transition:color .18s;min-height:44px;justify-content:center}
+.tab-btn.active{color:var(--accent)}
+.tab-btn svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+
+/* ── ONBOARDING TOOLTIP SYSTEM ── */
+.onboard-overlay{position:absolute;inset:0;z-index:80;pointer-events:none}
+.onboard-overlay.active{pointer-events:all}
+.ob-dim{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(2px);opacity:0;transition:opacity .3s}
+.ob-dim.show{opacity:1}
+.ob-tooltip{position:absolute;background:var(--bg1);border:1px solid var(--border2);border-radius:18px;padding:16px 18px;max-width:260px;box-shadow:0 12px 40px rgba(0,0,0,.7);opacity:0;transform:translateY(8px);transition:all .3s cubic-bezier(.2,.8,.4,1)}
+.ob-tooltip.show{opacity:1;transform:translateY(0)}
+.ob-tooltip::after{content:'';position:absolute;width:10px;height:10px;background:var(--bg1);border:1px solid var(--border2);transform:rotate(45deg)}
+.ob-tooltip.arrow-down::after{bottom:-6px;left:50%;margin-left:-5px;border-top:none;border-left:none}
+.ob-tooltip.arrow-up::after{top:-6px;left:50%;margin-left:-5px;border-bottom:none;border-right:none}
+.ob-tooltip.arrow-left::after{left:-6px;top:50%;margin-top:-5px;border-top:none;border-right:none}
+.ob-step{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.ob-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--txt1);margin-bottom:5px}
+.ob-desc{font-size:12px;color:var(--txt2);line-height:1.55;margin-bottom:12px}
+.ob-btns{display:flex;gap:8px;align-items:center}
+.ob-skip{font-size:11px;color:var(--txt3);cursor:pointer;background:none;border:none;padding:4px}
+.ob-next{background:var(--accent);border:none;border-radius:var(--rs);padding:8px 16px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#000;cursor:pointer;transition:opacity .15s;flex:1}
+.ob-next:active{opacity:.8}
+/* Highlight ring around target element */
+.ob-ring{position:absolute;border-radius:50%;border:2px solid var(--accent);pointer-events:none;animation:obRingPulse 1.4s ease-in-out infinite;z-index:81}
+@keyframes obRingPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,240,0,.5)}50%{box-shadow:0 0 0 8px rgba(232,240,0,0)}}
+
+/* SIDE MENU */
+.side-menu{position:absolute;inset:0;background:var(--bg0);z-index:60;transform:translateX(-100%);transition:transform .3s cubic-bezier(.2,.8,.4,1);display:flex;flex-direction:column}
+.side-menu.open{transform:translateX(0)}
+.sm-hdr{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border)}
+.sm-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent)}
+.sm-logo span{color:var(--txt1)}
+.sm-close{background:var(--bg3);border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt2)}
+.sm-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.sm-body{padding:20px;flex:1;overflow-y:auto}
+.sm-section{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:10px;margin-top:20px}
+.sm-section:first-child{margin-top:0}
+.sm-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .18s}
+.sm-item:active{opacity:.6}
+.sm-item-icon{width:36px;height:36px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sm-item-info{flex:1}
+.sm-item-name{font-size:14px;font-weight:500;color:var(--txt1)}
+.sm-item-sub{font-size:11px;color:var(--txt3);margin-top:1px}
+.sm-item-arr svg{width:14px;height:14px;stroke:var(--txt3);fill:none;stroke-width:2}
+.sm-lang-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+.sm-lang-pill{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:500;color:var(--txt2);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px}
+.sm-lang-pill.sel{background:var(--accent-dim);border-color:rgba(232,240,0,.3);color:var(--accent)}
+.sm-lang-pill:active{opacity:.7}
+
+/* OVERLAY / MODALS */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.72);z-index:55;display:none;backdrop-filter:blur(5px)}
+.overlay.show{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ══════════════════════
+   HOME VIEW
+══════════════════════ */
+#view-home{padding:0}
+.home-hero{position:relative;height:190px;flex-shrink:0;overflow:hidden}
+.home-hero-bg{position:absolute;inset:0;background:url('https://picsum.photos/id/1043/800/400') center/cover no-repeat;filter:brightness(.42) saturate(.8)}
+.home-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,8,9,0) 30%,var(--bg0) 100%)}
+.home-hero-content{position:absolute;bottom:0;left:0;right:0;padding:14px 20px}
+.home-hero-eye{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.home-hero-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--txt1);line-height:1.2;margin-bottom:3px}
+.home-hero-sub{font-size:12px;color:var(--txt2)}
+.home-stats{display:flex;gap:7px;padding:12px 20px 0;flex-shrink:0}
+.home-stat{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:10px;text-align:center}
+.hstat-val{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--accent);margin-bottom:1px}
+.hstat-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em}
+.home-body{padding:16px 20px 8px;display:flex;flex-direction:column;gap:14px}
+/* Pass banner */
+.pass-banner{background:linear-gradient(135deg,#0c1100,#182000);border:1px solid rgba(232,240,0,.2);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .18s}
+.pass-banner:active{border-color:rgba(232,240,0,.45)}
+.pass-banner::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(232,240,0,.1),transparent 70%)}
+.pb-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.pb-badge{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--accent);color:#000;padding:3px 9px;border-radius:20px}
+.pb-price{font-family:'Syne',sans-serif;font-size:21px;font-weight:800;color:var(--accent);line-height:1}
+.pb-price-sub{font-size:10px;font-weight:400;color:rgba(232,240,0,.45)}
+.pb-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--txt1);margin-bottom:4px}
+.pb-desc{font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:11px}
+.pb-feats{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.pb-feat{background:rgba(232,240,0,.07);border:1px solid rgba(232,240,0,.13);border-radius:20px;padding:3px 9px;font-size:10px;color:rgba(232,240,0,.65)}
+.pb-cta{width:100%;background:var(--accent);border:none;border-radius:var(--rs);padding:13px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#000;cursor:pointer;transition:opacity .18s}
+.pb-cta:active{opacity:.8}
+.pb-social{font-size:10px;color:var(--txt3);text-align:center;margin-top:7px;display:flex;align-items:center;justify-content:center;gap:4px}
+/* Category pills */
+.cat-row{display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cat-row::-webkit-scrollbar{display:none}
+.cat-pill{flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:11px;font-weight:600;color:var(--txt2);cursor:pointer;transition:all .18s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.cat-pill.on{background:var(--accent);border-color:var(--accent);color:#000}
+.cat-pill:active{opacity:.75}
+.cat-dot{width:7px;height:7px;border-radius:50%}
+/* Spot cards — home */
+.spot-list{display:flex;flex-direction:column;gap:8px}
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:stretch;overflow:hidden;cursor:pointer;transition:border-color .18s,transform .14s}
+.scard:active{transform:scale(.98);border-color:var(--border2)}
+.scard-img{width:88px;height:88px;object-fit:cover;flex-shrink:0}
+.scard-body{padding:11px 12px;flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.scard-type{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:4px;width:fit-content}
+.scard-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--txt1);line-height:1.3;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scard-sub{font-size:11px;color:var(--txt3)}
+.scard-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.scard-pts{font-family:'DM Mono',monospace;font-size:11px;font-weight:500}
+.trigger-tag{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:9px}
+.t-gps{background:var(--blue-dim);color:var(--blue)}
+.t-cam{background:var(--accent-dim);color:var(--accent2)}
+.t-food{background:var(--orange-dim);color:var(--orange)}
+/* HOW IT WORKS strip */
+.how-strip{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.how-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:12px}
+.how-steps{display:flex;flex-direction:column;gap:10px}
+.how-step{display:flex;align-items:flex-start;gap:11px}
+.how-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:#000;background:var(--accent);flex-shrink:0;margin-top:1px}
+.how-text{flex:1}
+.how-text-title{font-size:13px;font-weight:600;color:var(--txt1);margin-bottom:1px}
+.how-text-sub{font-size:11px;color:var(--txt2);line-height:1.4}
+/* Section header */
+.sec-hdr{display:flex;justify-content:space-between;align-items:center}
+.sec-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3)}
+.sec-link{font-size:11px;font-weight:600;color:var(--accent);cursor:pointer}
+
+/* ══════════════════════
+   MAP VIEW
+   KEY FIX: map-wrap uses absolute inset, drawer
+   positioned relative to map-wrap, NOT the phone.
+   Drawer bottom = 0 (sits above tabbar naturally
+   because tabbar is outside content).
+══════════════════════ */
+#view-map{padding:0;padding-bottom:0 !important;position:relative;overflow:hidden}
+.map-wrap{position:absolute;inset:0}
+#leaflet-map{position:absolute;inset:0;z-index:1}
+.leaflet-container{background:#0a0c0e !important}
+.leaflet-control-attribution,.leaflet-control-zoom{display:none}
+/* Floating top */
+.map-top{position:absolute;top:10px;left:12px;right:12px;z-index:20;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.map-search{display:flex;align-items:center;gap:9px;background:rgba(9,10,12,.92);border:1px solid var(--border2);border-radius:30px;padding:11px 16px;backdrop-filter:blur(18px);pointer-events:all}
+.map-search svg{width:14px;height:14px;stroke:var(--txt3);fill:none;stroke-width:2;flex-shrink:0}
+.map-search-txt{font-size:13px;color:var(--txt3)}
+.map-cats{display:flex;gap:7px;overflow-x:auto;pointer-events:all;-webkit-overflow-scrolling:touch}
+.map-cats::-webkit-scrollbar{display:none}
+.map-cat{flex-shrink:0;background:rgba(9,10,12,.88);border:1px solid var(--border2);border-radius:20px;padding:6px 13px;font-size:11px;font-weight:600;color:var(--txt2);cursor:pointer;backdrop-filter:blur(14px);transition:all .18s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.map-cat.on{border-color:var(--accent);color:var(--accent);background:rgba(232,240,0,.12)}
+/* Legend pill (first-time hint) */
+.map-legend{position:absolute;top:10px;right:13px;z-index:21;display:flex;flex-direction:column;gap:5px}
+.legend-item{background:rgba(9,10,12,.88);border:1px solid var(--border2);border-radius:20px;padding:5px 10px;font-size:10px;font-weight:600;backdrop-filter:blur(12px);display:flex;align-items:center;gap:5px;white-space:nowrap}
+/* Right controls */
+.map-right{position:absolute;right:13px;z-index:20;display:flex;flex-direction:column;gap:7px}
+.map-ctrl{width:42px;height:42px;border-radius:50%;background:rgba(9,10,12,.9);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(14px);transition:all .18s;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+.map-ctrl:active{transform:scale(.93)}
+.map-ctrl svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.map-ctrl.locate svg{stroke:var(--blue)}
+.map-ctrl.ar-c svg{stroke:var(--accent)}
+/* Proximity banner */
+.prox-banner{position:absolute;left:12px;right:12px;z-index:30;pointer-events:all;display:none}
+.prox-banner.show{display:block;animation:slideDown .32s cubic-bezier(.2,.8,.4,1)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.prox-card{border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:11px;backdrop-filter:blur(20px);border:1px solid;box-shadow:0 8px 28px rgba(0,0,0,.55)}
+.prox-card.outdoor{background:rgba(8,9,10,.94);border-color:var(--blue);box-shadow:0 8px 28px rgba(74,158,255,.18)}
+.prox-card.indoor{background:rgba(8,9,10,.94);border-color:var(--accent);box-shadow:0 8px 28px rgba(232,240,0,.13)}
+.prox-card.food{background:rgba(8,9,10,.94);border-color:var(--orange);box-shadow:0 8px 28px rgba(255,145,66,.18)}
+.prox-ping{position:relative;width:36px;height:36px;flex-shrink:0}
+.prox-icon-el{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;z-index:1}
+.prox-ring{position:absolute;inset:-5px;border-radius:50%;border:1.5px solid;animation:proxRing 1.5s ease-out infinite;opacity:0}
+.prox-ring:nth-child(2){animation-delay:.4s}
+.prox-ring:nth-child(3){animation-delay:.8s}
+@keyframes proxRing{0%{transform:scale(.7);opacity:.8}100%{transform:scale(2);opacity:0}}
+.outdoor .prox-icon-el{background:var(--blue-dim)}.outdoor .prox-ring{border-color:var(--blue)}
+.indoor .prox-icon-el{background:var(--accent-dim)}.indoor .prox-ring{border-color:var(--accent)}
+.food .prox-icon-el{background:var(--orange-dim)}.food .prox-ring{border-color:var(--orange)}
+.prox-info{flex:1;min-width:0}
+.prox-dist{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;margin-bottom:2px}
+.outdoor .prox-dist{color:var(--blue)}.indoor .prox-dist{color:var(--accent)}.food .prox-dist{color:var(--orange)}
+.prox-name{font-size:13px;font-weight:600;color:var(--txt1);margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prox-sub{font-size:10px;color:var(--txt3)}
+.prox-action{flex-shrink:0;border:1px solid;border-radius:var(--rs);padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;background:none;font-family:'DM Sans',sans-serif;transition:opacity .18s}
+.outdoor .prox-action{border-color:var(--blue);color:var(--blue)}
+.indoor .prox-action{border-color:var(--accent);color:var(--accent)}
+.food .prox-action{border-color:var(--orange);color:var(--orange)}
+.prox-action:active{opacity:.6}
+/* ── DRAWER ──
+   Bottom drawer lives inside map-wrap (absolute positioned).
+   peek = show 112px only (handle + count row + 2 spots peeking)
+   half = show 50% of map-wrap height
+   Bottom is 0 — tabbar is OUTSIDE .content so it's already above it.
+*/
+.drawer{position:absolute;left:0;right:0;bottom:0;z-index:25;
+  background:rgba(9,10,11,.97);border-radius:22px 22px 0 0;
+  border-top:1px solid var(--border2);backdrop-filter:blur(24px);
+  transition:height .35s cubic-bezier(.2,.8,.4,1);
+  height:112px;overflow:hidden;
+  display:flex;flex-direction:column}
+.drawer.half{height:55%}
+.drawer-drag{padding:10px 0 0;display:flex;justify-content:center;cursor:pointer;flex-shrink:0}
+.drawer-handle{width:36px;height:4px;background:var(--border2);border-radius:2px}
+.drawer-peek-row{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 8px;flex-shrink:0}
+.drawer-peek-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3)}
+.drawer-peek-right{display:flex;align-items:center;gap:8px}
+.drawer-count{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent)}
+.drawer-expand-hint{font-size:10px;color:var(--txt3);display:flex;align-items:center;gap:3px}
+.drawer-list{overflow-y:auto;flex:1;padding:0 12px 16px}
+.drawer-list::-webkit-scrollbar{display:none}
+/* Spot row in drawer */
+.dspot{display:flex;align-items:center;gap:11px;padding:10px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:7px;cursor:pointer;transition:all .18s}
+.dspot:active{background:var(--bg3);border-color:var(--border2)}
+.dspot.near{border-color:rgba(232,240,0,.28);background:rgba(232,240,0,.04)}
+.dspot-icon{width:40px;height:40px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;border:1px solid}
+.dspot-icon.outdoor{background:var(--blue-dim);border-color:rgba(74,158,255,.2)}
+.dspot-icon.indoor{background:var(--accent-dim);border-color:rgba(232,240,0,.14)}
+.dspot-icon.food{background:var(--orange-dim);border-color:rgba(255,145,66,.2)}
+.dspot-mid{flex:1;min-width:0}
+.dspot-name{font-size:13px;font-weight:600;color:var(--txt1);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dspot-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.dspot-dist{font-family:'DM Mono',monospace;font-size:10px;color:var(--txt3)}
+.dspot-pts{font-size:10px;font-weight:700}
+/* ── SPOT DETAIL SHEET ──
+   Also inside map-wrap. max-height carefully set so CTA is always visible.
+*/
+.spot-sheet{position:absolute;bottom:0;left:0;right:0;z-index:30;
+  background:var(--bg1);border-radius:24px 24px 0 0;border-top:1px solid var(--border2);
+  display:none;flex-direction:column;
+  max-height:82%;overflow:hidden}
+.spot-sheet.show{display:flex;animation:sheetUp .3s cubic-bezier(.2,.8,.4,1)}
+@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.ss-handle-row{padding:10px 0 0;display:flex;justify-content:center;flex-shrink:0}
+.ss-handle{width:34px;height:3px;background:var(--border2);border-radius:2px}
+.ss-img{position:relative;height:148px;margin:8px 14px 0;border-radius:14px;overflow:hidden;flex-shrink:0}
+.ss-img img{width:100%;height:100%;object-fit:cover}
+.ss-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,15,16,.96) 0%,rgba(13,15,16,.1) 60%,transparent 100%)}
+.ss-img-close{position:absolute;top:9px;right:9px;width:28px;height:28px;background:rgba(0,0,0,.55);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+.ss-img-close svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5}
+.ss-img-info{position:absolute;bottom:0;left:0;right:0;padding:10px 13px}
+.ss-type-badge{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:5px;display:inline-block;margin-bottom:4px}
+.ss-name{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;color:#fff;line-height:1.2}
+.ss-scroll{overflow-y:auto;flex:1;padding:12px 14px 0}
+.ss-scroll::-webkit-scrollbar{display:none}
+.ss-stats{display:flex;gap:7px;margin-bottom:11px}
+.ss-stat{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:8px;text-align:center}
+.ss-stat-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--txt1);margin-bottom:1px}
+.ss-stat-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em}
+.ss-desc{font-size:13px;color:var(--txt2);line-height:1.68;margin-bottom:11px}
+/* How to trigger */
+.trig-box{border-radius:var(--rs);padding:11px 13px;margin-bottom:0;display:flex;align-items:flex-start;gap:11px}
+.trig-box.gps{background:var(--blue-dim);border:1px solid rgba(74,158,255,.22)}
+.trig-box.cam{background:var(--accent-dim);border:1px solid rgba(232,240,0,.18)}
+.trig-box.food-t{background:var(--orange-dim);border:1px solid rgba(255,145,66,.22)}
+.trig-icon{font-size:19px;flex-shrink:0;margin-top:2px}
+.trig-body{flex:1}
+.trig-title{font-size:12px;font-weight:700;margin-bottom:3px}
+.gps .trig-title{color:var(--blue)}.cam .trig-title{color:var(--accent)}.food-t .trig-title{color:var(--orange)}
+.trig-desc{font-size:11px;color:var(--txt2);line-height:1.5}
+.trig-steps{margin-top:7px;display:flex;flex-direction:column;gap:5px}
+.trig-step{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--txt2)}
+.trig-n{width:16px;height:16px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--txt3);flex-shrink:0;margin-top:1px}
+/* CTAs — always visible, flex-shrink:0 */
+.ss-ctas{padding:12px 14px 22px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border);margin-top:12px;background:var(--bg1)}
+.ss-cta{width:100%;border:none;border-radius:var(--r);padding:15px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .18s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:-.01em}
+.ss-cta:active{opacity:.8}
+.ss-cta.gps{background:var(--blue);color:#fff}
+.ss-cta.cam{background:var(--accent);color:#000}
+.ss-cta.food-c{background:var(--orange);color:#fff}
+.ss-cta-sec{width:100%;background:transparent;border:1px solid var(--border2);border-radius:var(--r);padding:12px;font-size:13px;font-weight:600;color:var(--txt2);cursor:pointer;transition:background .18s}
+.ss-cta-sec:active{background:var(--bg3)}
+/* Sim buttons */
+.sim-panel{position:absolute;left:13px;z-index:22;display:flex;flex-direction:column;gap:5px}
+.sim-lbl{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);text-align:center;margin-bottom:1px}
+.sim-btn{background:rgba(9,10,12,.85);border:1px solid var(--border2);border-radius:9px;padding:7px 10px;font-size:10px;font-weight:600;color:var(--txt2);cursor:pointer;backdrop-filter:blur(14px);transition:all .18s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.sim-btn:active{background:var(--bg4);color:var(--txt1)}
+/* Leaflet */
+.lf-user{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--blue);position:relative}
+.lf-user::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:rgba(74,158,255,.18);animation:uPing 2s ease-out infinite}
+@keyframes uPing{0%{transform:scale(.7);opacity:.8}100%{transform:scale(2.2);opacity:0}}
+.lf-mk{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;border:2.5px solid;cursor:pointer;transition:transform .18s;position:relative}
+.lf-mk::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:1.5px solid;opacity:.22}
+.lf-mk:active{transform:scale(.88)}
+.lf-mk.outdoor{background:var(--blue-dim);border-color:var(--blue)}.lf-mk.outdoor::after{border-color:var(--blue)}
+.lf-mk.indoor{background:var(--accent-dim);border-color:var(--accent)}.lf-mk.indoor::after{border-color:var(--accent)}
+.lf-mk.food{background:var(--orange-dim);border-color:var(--orange)}.lf-mk.food::after{border-color:var(--orange)}
+.lf-mk.near{animation:mkGlow 1.4s ease-in-out infinite}
+@keyframes mkGlow{0%,100%{box-shadow:0 0 0 0 currentColor}50%{box-shadow:0 0 0 8px transparent}}
+.lf-popup .leaflet-popup-content-wrapper{background:rgba(11,12,14,.97);border:1px solid var(--border2);border-radius:14px;padding:0;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.75);backdrop-filter:blur(16px)}
+.lf-popup .leaflet-popup-content{margin:0;min-width:185px}
+.lf-popup .leaflet-popup-tip{background:rgba(11,12,14,.97)}
+.lf-popup .leaflet-popup-close-button{color:rgba(255,255,255,.3)!important;top:9px!important;right:11px!important;font-size:16px!important}
+.pop{padding:13px 14px}
+.pop-tag{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:4px;margin-bottom:6px}
+.pop-tag.outdoor{background:var(--blue-dim);color:var(--blue)}
+.pop-tag.indoor{background:var(--accent-dim);color:var(--accent)}
+.pop-tag.food{background:var(--orange-dim);color:var(--orange)}
+.pop-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--txt1);margin-bottom:2px}
+.pop-sub{font-size:11px;color:var(--txt3);margin-bottom:8px}
+.pop-trigger{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;padding:4px 8px;border-radius:6px;margin-bottom:9px}
+.pop-trigger.gps{background:var(--blue-dim);color:var(--blue)}
+.pop-trigger.cam{background:var(--accent-dim);color:var(--accent)}
+.pop-trigger.food-t{background:var(--orange-dim);color:var(--orange)}
+.pop-btn{display:block;width:100%;padding:10px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:opacity .15s}
+.pop-btn:active{opacity:.75}
+.pop-btn.outdoor{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(74,158,255,.3)}
+.pop-btn.indoor{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(232,240,0,.2)}
+.pop-btn.food{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(255,145,66,.3)}
+
+/* ══════════════════════
+   AR OVERLAY
+══════════════════════ */
+.ar-overlay{position:absolute;inset:0;z-index:45;display:none;flex-direction:column}
+.ar-overlay.show{display:flex;animation:fadeIn .2s ease}
+.ar-cam-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.58) saturate(.75)}
+.ar-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.023) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.023) 1px,transparent 1px);background-size:38px 38px}
+.ar-top{position:relative;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:54px 18px 12px}
+.ar-badge{background:rgba(7,8,9,.86);border:1px solid rgba(232,240,0,.35);border-radius:20px;padding:7px 14px;font-size:11px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:6px;backdrop-filter:blur(10px)}
+.ar-live{width:6px;height:6px;border-radius:50%;background:var(--red);animation:liveBlink 1s infinite}
+@keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.2}}
+.ar-x{background:rgba(7,8,9,.7);border:1px solid var(--border2);border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:var(--txt1)}
+.ar-x svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+/* Viewfinder */
+.ar-finder{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:240px;height:240px;z-index:5}
+.arc{position:absolute;width:28px;height:28px;border-style:solid;border-color:var(--accent)}
+.arc.tl{top:0;left:0;border-width:3px 0 0 3px;border-radius:3px 0 0 0}
+.arc.tr{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 3px 0 0}
+.arc.bl{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 3px}
+.arc.br{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 3px 0}
+.ar-sweep{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);box-shadow:0 0 10px 2px rgba(232,240,0,.4);animation:sweepMove 1.35s ease-in-out infinite}
+@keyframes sweepMove{0%{top:0}100%{top:calc(100% - 2px)}}
+/* Instruction hint inside AR */
+.ar-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,105px);z-index:5;text-align:center}
+.ar-hint-pill{background:rgba(7,8,9,.78);border-radius:20px;padding:6px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.07em;backdrop-filter:blur(8px);white-space:nowrap;display:inline-block}
+.ar-obj{position:absolute;top:50%;left:50%;transform:translate(-50%,-78%);z-index:6;text-align:center;display:none}
+.ar-obj.show{display:block;animation:objPop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes objPop{from{opacity:0;transform:translate(-50%,-78%) scale(.2)}to{opacity:1;transform:translate(-50%,-78%) scale(1)}}
+.ar-obj-lbl{background:rgba(7,8,9,.9);border:1px solid rgba(232,240,0,.4);border-radius:12px;padding:8px 15px;display:inline-block;margin-bottom:10px;backdrop-filter:blur(14px)}
+.ar-obj-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--txt1);margin-bottom:1px}
+.ar-obj-era{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent)}
+.ar-obj-emoji{font-size:62px;filter:drop-shadow(0 0 24px rgba(232,240,0,.5));animation:objFloat 2s ease-in-out infinite}
+@keyframes objFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.ar-result{position:absolute;bottom:0;left:0;right:0;z-index:7;background:linear-gradient(transparent,rgba(7,8,9,.98) 20%);padding:28px 16px 28px;display:none}
+.ar-result.show{display:block;animation:sheetUp .3s cubic-bezier(.2,.8,.4,1)}
+.ar-card{background:rgba(18,20,21,.94);border:1px solid var(--border2);border-radius:20px;padding:16px;backdrop-filter:blur(18px)}
+.ar-card-hdr{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.ar-card-ico{width:44px;height:44px;border-radius:var(--rs);background:var(--accent-dim);border:1px solid rgba(232,240,0,.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ar-card-type{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
+.ar-card-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--txt1);line-height:1.2}
+.ar-card-desc{font-size:12px;color:var(--txt2);line-height:1.65;margin-bottom:13px}
+.ar-card-btn{width:100%;background:var(--accent);border:none;border-radius:var(--rs);padding:14px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#000;cursor:pointer;transition:opacity .18s}
+.ar-card-btn:active{opacity:.8}
+.ar-sim-btn{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:8;background:rgba(232,240,0,.13);border:1px solid rgba(232,240,0,.38);border-radius:30px;padding:11px 22px;font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;backdrop-filter:blur(10px);white-space:nowrap;display:flex;align-items:center;gap:7px}
+.ar-sim-btn:active{background:rgba(232,240,0,.22)}
+.ar-sim-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ══════════════════════
+   QUEST OVERLAY
+══════════════════════ */
+.quest-overlay{position:absolute;inset:0;z-index:45;background:var(--bg0);display:none;flex-direction:column;overflow-y:auto}
+.quest-overlay.show{display:flex;animation:fadeIn .2s ease}
+.q-hero{position:relative;height:165px;flex-shrink:0;overflow:hidden}
+.q-hero img{width:100%;height:100%;object-fit:cover;filter:brightness(.42)}
+.q-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--bg0) 0%,transparent 100%)}
+.q-hero-back{position:absolute;top:50px;left:16px;width:34px;height:34px;background:rgba(0,0,0,.55);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.q-hero-back svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5}
+.q-hero-info{position:absolute;bottom:0;left:0;right:0;padding:14px 20px}
+.q-hero-loc{font-family:'DM Mono',monospace;font-size:10px;color:var(--txt3);margin-bottom:4px;letter-spacing:.06em}
+.q-hero-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff;line-height:1.2}
+.q-body{padding:18px 20px;flex:1;display:flex;flex-direction:column;gap:13px}
+.q-prog{display:flex;gap:5px}
+.q-dot{flex:1;height:4px;border-radius:2px;background:var(--bg3)}
+.q-dot.done{background:var(--green)}
+.q-dot.now{background:var(--accent)}
+.q-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:18px;flex:1}
+.q-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.q-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--red-dim);color:var(--red);padding:3px 9px;border-radius:5px}
+.q-pts{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--accent)}
+.q-question{font-family:'Syne',sans-serif;font-size:17px;font-weight:600;color:var(--txt1);line-height:1.5;margin-bottom:15px}
+.q-opts{display:flex;flex-direction:column;gap:8px}
+.q-opt{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 16px;color:var(--txt1);font-size:14px;text-align:left;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .18s;font-weight:500;min-height:44px}
+.q-opt:active{background:var(--bg4)}
+.q-opt.ok{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.q-opt.no{background:var(--red-dim);border-color:var(--red);color:var(--red);animation:shake .22s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-5px)}70%{transform:translateX(5px)}}
+.q-success{text-align:center;padding:6px 0}
+.q-success-emoji{font-size:50px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.q-success-pts{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;color:var(--accent);margin:8px 0 4px}
+.q-success-sub{font-size:13px;color:var(--txt2)}
+.q-reward-pill{background:var(--green-dim);border:1px solid var(--green);border-radius:var(--rs);padding:11px 14px;margin-top:11px;font-size:12px;color:var(--green);text-align:left;line-height:1.4}
+.q-next{width:100%;background:var(--accent);border:none;border-radius:var(--r);padding:16px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#000;cursor:pointer;margin-top:13px}
+
+/* ══════════════════════
+   RANK VIEW
+══════════════════════ */
+#view-rank{padding:20px}
+.lb-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--txt1);margin-bottom:3px}
+.lb-sub{font-size:12px;color:var(--txt2);margin-bottom:16px}
+.lb-filter-row{display:flex;gap:7px;margin-bottom:14px;overflow-x:auto}
+.lb-filter-row::-webkit-scrollbar{display:none}
+.lb-filter{flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--txt2);cursor:pointer;transition:all .18s;white-space:nowrap}
+.lb-filter.on{background:var(--accent);border-color:var(--accent);color:#000}
+.my-rank-card{background:var(--bg2);border:1px solid rgba(232,240,0,.28);border-radius:var(--r);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.my-rank-num{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--accent);min-width:36px}
+.my-rank-ava{width:40px;height:40px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#000;font-family:'Syne',sans-serif;flex-shrink:0}
+.my-rank-info{flex:1}
+.my-rank-name{font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:2px}
+.my-rank-pts{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent)}
+.my-rank-badge{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--accent-dim);color:var(--accent);padding:3px 9px;border-radius:4px}
+.lb-list{display:flex;flex-direction:column;gap:7px}
+.lb-row{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:12px 13px;display:flex;align-items:center;gap:11px}
+.lb-row.top{border-color:rgba(232,240,0,.16)}
+.lb-medal{font-size:16px;min-width:22px;text-align:center}
+.lb-ava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;font-family:'Syne',sans-serif;flex-shrink:0}
+.lb-name{flex:1;font-size:13px;font-weight:500;color:var(--txt1)}
+.lb-score{font-family:'DM Mono',monospace;font-size:12px;color:var(--txt2)}
+.lb-row.top .lb-score{color:var(--accent)}
+
+/* ══════════════════════
+   REWARDS VIEW
+══════════════════════ */
+#view-rewards{padding:20px}
+.rw-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--txt1);margin-bottom:3px}
+.rw-sub{font-size:12px;color:var(--txt2);margin-bottom:16px}
+.pass-active{background:linear-gradient(135deg,#0c1100,#182000);border:1px solid rgba(232,240,0,.22);border-radius:var(--r);padding:16px;margin-bottom:16px;position:relative;overflow:hidden}
+.pass-active::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(232,240,0,.1),transparent 70%)}
+.pa-top{display:flex;justify-content:space-between;margin-bottom:10px}
+.pa-badge{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--accent);color:#000;padding:3px 9px;border-radius:20px}
+.pa-exp{font-family:'DM Mono',monospace;font-size:10px;color:rgba(232,240,0,.38)}
+.pa-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--txt1);margin-bottom:2px}
+.pa-sub{font-size:12px;color:var(--txt2);margin-bottom:12px}
+.pa-stats{display:flex;gap:18px}
+.pa-sv{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--accent)}
+.pa-sl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em}
+.rw-sec{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:9px;margin-top:14px}
+.coupon{border-radius:var(--r);border:1px solid;padding:15px;margin-bottom:9px;position:relative;overflow:hidden}
+.coupon::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;border-radius:4px 0 0 4px}
+.coupon.fc{border-color:rgba(255,145,66,.32);background:rgba(255,145,66,.05)}.coupon.fc::before{background:var(--orange)}
+.coupon.cc{border-color:rgba(74,158,255,.32);background:rgba(74,158,255,.05)}.coupon.cc::before{background:var(--blue)}
+.coupon.qc{border-color:rgba(232,240,0,.25);background:rgba(232,240,0,.04)}.coupon.qc::before{background:var(--accent)}
+.coupon-tag{position:absolute;top:11px;right:12px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.fc .coupon-tag{background:var(--orange-dim);color:var(--orange)}
+.cc .coupon-tag{background:var(--blue-dim);color:var(--blue)}
+.qc .coupon-tag{background:var(--accent-dim);color:var(--accent2)}
+.coupon-from{font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.fc .coupon-from{color:var(--orange)}.cc .coupon-from{color:var(--blue)}.qc .coupon-from{color:var(--accent2)}
+.coupon-name{font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:11px;padding-right:55px}
+.coupon-btn{background:rgba(0,0,0,.3);border:none;color:var(--txt1);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px 15px;min-height:38px;border-radius:var(--rs);cursor:pointer;transition:background .18s}
+.coupon-btn:active{background:rgba(0,0,0,.5)}
+.more-cities{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:15px;margin-top:14px}
+.mc-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--txt1);margin-bottom:3px}
+.mc-sub{font-size:12px;color:var(--txt2);margin-bottom:11px}
+.mc-row{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.mc-row::-webkit-scrollbar{display:none}
+.mc-city{flex-shrink:0;width:78px;border-radius:var(--rs);overflow:hidden;cursor:pointer;border:1px solid var(--border);transition:border-color .18s}
+.mc-city:active{border-color:var(--accent)}
+.mc-city-img{width:100%;height:52px;object-fit:cover;filter:brightness(.55)}
+.mc-city-name{font-size:11px;font-weight:600;color:var(--txt1);padding:4px 7px;background:var(--bg3)}
+.mc-city-price{font-size:9px;color:var(--accent);padding:0 7px 5px;background:var(--bg3)}
+
+/* PAYWALL */
+.paywall{position:absolute;inset:0;z-index:50;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);display:none;align-items:flex-end}
+.paywall.show{display:flex;animation:fadeIn .2s ease}
+.pw-sheet{width:100%;background:var(--bg1);border-radius:28px 28px 0 0;padding:24px 22px 32px;position:relative}
+.pw-close{position:absolute;top:14px;right:18px;background:var(--bg3);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt2)}
+.pw-close svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.pw-emoji{font-size:42px;display:block;text-align:center;margin-bottom:11px}
+.pw-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--txt1);text-align:center;margin-bottom:4px}
+.pw-sub{font-size:13px;color:var(--txt2);text-align:center;line-height:1.55;margin-bottom:14px}
+.pw-social{font-size:11px;color:var(--txt3);text-align:center;margin-bottom:13px;padding:9px;background:var(--bg2);border-radius:var(--rs)}
+.pw-plans{display:flex;gap:7px;margin-bottom:16px}
+.pw-plan{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 9px;text-align:center;cursor:pointer;transition:all .18s;position:relative}
+.pw-plan.sel{border-color:var(--accent);background:var(--accent-dim)}
+.pw-plan.pop::before{content:'BEST';position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-size:8px;font-weight:700;letter-spacing:.08em;padding:2px 7px;border-radius:10px}
+.pw-plan-price{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--txt1);margin-bottom:1px}
+.pw-plan-period{font-size:10px;color:var(--txt3)}
+.pw-plan-label{font-size:11px;font-weight:600;color:var(--txt2);margin-top:4px}
+.pw-feats{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.pw-feat{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--txt2)}
+.pw-feat svg{width:14px;height:14px;stroke:var(--green);fill:none;stroke-width:2.5;flex-shrink:0}
+.pw-cta{width:100%;background:var(--accent);border:none;border-radius:var(--r);padding:16px;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#000;cursor:pointer;transition:opacity .18s}
+.pw-cta:active{opacity:.8}
+.pw-fine{font-size:10px;color:var(--txt3);text-align:center;margin-top:7px}
+</style>
+</head>
+<body>
+<div class="phone">
+
+<!-- PAYWALL -->
+<div class="paywall" id="paywall">
+  <div class="pw-sheet">
+    <button class="pw-close" onclick="closePaywall()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    <span class="pw-emoji">🗺️</span>
+    <div class="pw-title">Unlock London</div>
+    <div class="pw-sub">100+ spots · Real AI guides · Local rewards<br>12,400+ travellers this month</div>
+    <div class="pw-social">🔥 <strong style="color:var(--txt1)">47 people</strong> bought a pass in the last hour</div>
+    <div class="pw-plans">
+      <div class="pw-plan" onclick="selPlan(this)"><div class="pw-plan-price">£4.99</div><div class="pw-plan-period">24 hrs</div><div class="pw-plan-label">Day pass</div></div>
+      <div class="pw-plan pop sel" onclick="selPlan(this)"><div class="pw-plan-price">£7.99</div><div class="pw-plan-period">7 days</div><div class="pw-plan-label">City pass</div></div>
+      <div class="pw-plan" onclick="selPlan(this)"><div class="pw-plan-price">£14.99</div><div class="pw-plan-period">30 days</div><div class="pw-plan-label">All cities</div></div>
+    </div>
+    <div class="pw-feats">
+      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>100+ AR spots across London</div>
+      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Gemini AI — point camera, get instant insight</div>
+      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Partner rewards: cafés, shops, museums</div>
+      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>7 languages: EN KO JA ZH ES FR DE</div>
+    </div>
+    <button class="pw-cta" onclick="doPurchase()">Get London City Pass — £7.99</button>
+    <div class="pw-fine">Cancel anytime · Instant access · No hidden fees</div>
+  </div>
+</div>
+
+<!-- SIDE MENU -->
+<div class="side-menu" id="side-menu">
+  <div class="sm-hdr">
+    <div class="sm-logo">Play<span>Spot</span></div>
+    <button class="sm-close" onclick="closeSM()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+  </div>
+  <div class="sm-body">
+    <div class="sm-section">Language · 언어</div>
+    <div class="sm-lang-grid" id="lang-grid">
+      <div class="sm-lang-pill sel" onclick="setLang(this,'EN')">🇬🇧 EN</div>
+      <div class="sm-lang-pill" onclick="setLang(this,'KO')">🇰🇷 한국어</div>
+      <div class="sm-lang-pill" onclick="setLang(this,'JA')">🇯🇵 日本語</div>
+      <div class="sm-lang-pill" onclick="setLang(this,'ZH')">🇨🇳 中文</div>
+      <div class="sm-lang-pill" onclick="setLang(this,'ES')">🇪🇸 ES</div>
+      <div class="sm-lang-pill" onclick="setLang(this,'FR')">🇫🇷 FR</div>
+      <div class="sm-lang-pill" onclick="setLang(this,'DE')">🇩🇪 DE</div>
+    </div>
+    <div class="sm-section">Explore</div>
+    <div class="sm-item" onclick="closeSM();switchTab('home')">
+      <div class="sm-item-icon" style="background:var(--blue-dim)">🏙</div>
+      <div class="sm-item-info"><div class="sm-item-name">London Explorer</div><div class="sm-item-sub">100+ spots · AR quests</div></div>
+      <div class="sm-item-arr"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
+    </div>
+    <div class="sm-item" onclick="closeSM();openPaywall()">
+      <div class="sm-item-icon" style="background:var(--accent-dim)">🗺️</div>
+      <div class="sm-item-info"><div class="sm-item-name">Get City Pass</div><div class="sm-item-sub">From £4.99 · Unlock all spots</div></div>
+      <div class="sm-item-arr"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
+    </div>
+    <div class="sm-section">Coming Soon</div>
+    <div class="sm-item" style="opacity:.4;pointer-events:none">
+      <div class="sm-item-icon" style="background:var(--orange-dim)">🗼</div>
+      <div class="sm-item-info"><div class="sm-item-name">Paris Explorer</div><div class="sm-item-sub">Q3 2026</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING OVERLAY -->
+<div class="onboard-overlay" id="ob-overlay">
+  <div class="ob-dim" id="ob-dim"></div>
+  <div class="ob-tooltip" id="ob-tip"></div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="sb">
+  <div class="sb-time">9:41</div>
+  <div class="sb-icons">
+    <svg viewBox="0 0 24 24"><path d="M1.5 8.5s5-6 10.5-6 10.5 6 10.5 6M5 12s3.5-4.5 7-4.5S19 12 19 12M8.5 15.5S10 14 12 14s3.5 1.5 3.5 1.5M12 19h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 25 13"><rect x="0" y="1" width="22" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1.5" y="2.5" width="16" height="8" rx="1.5" fill="currentColor"/><path d="M23 4.5v4a2 2 0 000-4z" fill="currentColor"/></svg>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr" id="main-hdr">
+  <div class="hdr-logo" onclick="switchTab('home')">Play<span>Spot</span></div>
+  <div class="hdr-right">
+    <div class="hdr-lang" id="hdr-lang" onclick="openSM()">🌐 EN</div>
+    <div class="hdr-score"><span class="hdr-score-val" id="score-val">320</span><span class="hdr-score-lbl"> pts</span></div>
+    <div class="hdr-menu" onclick="openSM()"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ── HOME ── -->
+<div class="view active" id="view-home">
+  <div class="home-hero">
+    <div class="home-hero-bg"></div>
+    <div class="home-hero-overlay"></div>
+    <div class="home-hero-content">
+      <div class="home-hero-eye">📍 London · 6 spots nearby</div>
+      <div class="home-hero-title">Explore London<br>Like Never Before</div>
+      <div class="home-hero-sub">Point your camera at anything · AI tells the story</div>
+    </div>
+  </div>
+  <div class="home-stats">
+    <div class="home-stat"><div class="hstat-val">100+</div><div class="hstat-lbl">Spots</div></div>
+    <div class="home-stat"><div class="hstat-val">2hrs</div><div class="hstat-lbl">Avg tour</div></div>
+    <div class="home-stat"><div class="hstat-val">12k+</div><div class="hstat-lbl">Players</div></div>
+    <div class="home-stat"><div class="hstat-val">4.9★</div><div class="hstat-lbl">Rating</div></div>
+  </div>
+  <div class="home-body">
+    <!-- HOW IT WORKS — first thing new users see -->
+    <div class="how-strip" id="how-strip">
+      <div class="how-title">How it works</div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div class="how-text">
+            <div class="how-text-title">🌿 Outdoor spots → Walk close</div>
+            <div class="how-text-sub">GPS detects you automatically. Quest unlocks as you arrive.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div class="how-text">
+            <div class="how-text-title">🏛 Indoor spots → Point camera</div>
+            <div class="how-text-sub">Open AR Scan, aim at any exhibit. Gemini AI identifies it instantly.</div>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div class="how-text">
+            <div class="how-text-title">🍽 Food spots → Just walk by</div>
+            <div class="how-text-sub">Discount coupon appears automatically in your Rewards tab.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Pass upsell -->
+    <div class="pass-banner" onclick="openPaywall()">
+      <div class="pb-top">
+        <div class="pb-badge">🔥 Limited Offer</div>
+        <div><div class="pb-price">£7.99</div><div class="pb-price-sub">/ 7 days</div></div>
+      </div>
+      <div class="pb-title">London City Pass</div>
+      <div class="pb-desc">Skip the £25+ guided tours. Get AI-powered stories, AR quests & real local rewards.</div>
+      <div class="pb-feats">
+        <div class="pb-feat">🏛 100+ Spots</div>
+        <div class="pb-feat">📸 AR + AI</div>
+        <div class="pb-feat">🎁 Real Rewards</div>
+        <div class="pb-feat">🌍 7 Languages</div>
+      </div>
+      <button class="pb-cta">Unlock London — £7.99 →</button>
+      <div class="pb-social">🔥 47 people bought in the last hour</div>
+    </div>
+    <!-- Filter + spots -->
+    <div class="sec-hdr">
+      <div class="sec-title">Nearby Spots</div>
+      <div class="sec-link" onclick="switchTab('map')">See on Map →</div>
+    </div>
+    <div class="cat-row" id="home-cats">
+      <div class="cat-pill on" onclick="filterHome(this,'all')">All</div>
+      <div class="cat-pill" onclick="filterHome(this,'outdoor')"><span class="cat-dot" style="background:var(--blue)"></span>Outdoor</div>
+      <div class="cat-pill" onclick="filterHome(this,'indoor')"><span class="cat-dot" style="background:var(--accent)"></span>Indoor</div>
+      <div class="cat-pill" onclick="filterHome(this,'food')"><span class="cat-dot" style="background:var(--orange)"></span>Food</div>
+    </div>
+    <div class="spot-list" id="home-list"></div>
+  </div>
+</div>
+
+<!-- ── MAP ── -->
+<div class="view" id="view-map" style="padding-bottom:0 !important;overflow:hidden">
+  <div class="map-wrap" id="map-wrap">
+    <div id="leaflet-map"></div>
+    <!-- Top search + categories -->
+    <div class="map-top">
+      <div class="map-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+        <span class="map-search-txt">Search London spots...</span>
+      </div>
+      <div class="map-cats" id="map-cats">
+        <div class="map-cat on" onclick="filterMap(this,'all')">All</div>
+        <div class="map-cat" onclick="filterMap(this,'outdoor')"><span style="color:var(--blue);margin-right:3px">●</span>Outdoor GPS</div>
+        <div class="map-cat" onclick="filterMap(this,'indoor')"><span style="color:var(--accent);margin-right:3px">●</span>Indoor Camera</div>
+        <div class="map-cat" onclick="filterMap(this,'food')"><span style="color:var(--orange);margin-right:3px">●</span>Food</div>
+      </div>
+    </div>
+    <!-- Proximity banner -->
+    <div class="prox-banner" id="prox-banner" style="top:128px">
+      <div class="prox-card" id="prox-card">
+        <div class="prox-ping">
+          <div class="prox-ring"></div><div class="prox-ring"></div><div class="prox-ring"></div>
+          <div class="prox-icon-el" id="prox-icon">⚡</div>
+        </div>
+        <div class="prox-info">
+          <div class="prox-dist" id="prox-dist">18m away</div>
+          <div class="prox-name" id="prox-name">Tower Bridge</div>
+          <div class="prox-sub" id="prox-sub">GPS detected · Quest unlocks</div>
+        </div>
+        <button class="prox-action" id="prox-action" onclick="proxGo()">Go →</button>
+      </div>
+    </div>
+    <!-- Right controls — positioned above drawer -->
+    <div class="map-right" id="map-right" style="bottom:128px">
+      <div class="map-ctrl locate" onclick="recenter()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke-linecap="round"/></svg></div>
+      <div class="map-ctrl ar-c" onclick="openAR(null)"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg></div>
+    </div>
+    <!-- Sim panel — above drawer -->
+    <div class="sim-panel" id="sim-panel" style="bottom:128px">
+      <div class="sim-lbl">Simulate</div>
+      <div class="sim-btn" onclick="triggerProx('outdoor')">📍 Outdoor</div>
+      <div class="sim-btn" onclick="triggerProx('indoor')">📸 Indoor</div>
+      <div class="sim-btn" onclick="triggerProx('food')">🍽 Food</div>
+    </div>
+    <!-- DRAWER -->
+    <div class="drawer" id="drawer">
+      <div class="drawer-drag" onclick="toggleDrawer()"><div class="drawer-handle"></div></div>
+      <div class="drawer-peek-row">
+        <div class="drawer-peek-title">Spots Near You</div>
+        <div class="drawer-peek-right">
+          <div class="drawer-count" id="drawer-count">6 found</div>
+          <div class="drawer-expand-hint" id="expand-hint">↑ Pull up</div>
+        </div>
+      </div>
+      <div class="drawer-list" id="drawer-list"></div>
+    </div>
+    <!-- SPOT DETAIL SHEET -->
+    <div class="spot-sheet" id="spot-sheet">
+      <div class="ss-handle-row"><div class="ss-handle"></div></div>
+      <div class="ss-img">
+        <img id="ss-img" src="" alt="">
+        <div class="ss-img-overlay"></div>
+        <button class="ss-img-close" onclick="closeSpot()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        <div class="ss-img-info">
+          <div class="ss-type-badge" id="ss-type">Outdoor</div>
+          <div class="ss-name" id="ss-name">Tower Bridge</div>
+        </div>
+      </div>
+      <div class="ss-scroll">
+        <div class="ss-stats">
+          <div class="ss-stat"><div class="ss-stat-val" id="ss-dist">—</div><div class="ss-stat-lbl">Distance</div></div>
+          <div class="ss-stat"><div class="ss-stat-val" id="ss-pts">—</div><div class="ss-stat-lbl">Points</div></div>
+          <div class="ss-stat"><div class="ss-stat-val" id="ss-today">—</div><div class="ss-stat-lbl">Visitors</div></div>
+        </div>
+        <div class="ss-desc" id="ss-desc">—</div>
+        <div class="trig-box" id="ss-trig">
+          <div class="trig-icon" id="ss-trig-icon">📍</div>
+          <div class="trig-body">
+            <div class="trig-title" id="ss-trig-title">GPS Auto-detect</div>
+            <div class="trig-desc" id="ss-trig-desc">Walk close and the app detects you.</div>
+            <div class="trig-steps" id="ss-trig-steps"></div>
+          </div>
+        </div>
+      </div>
+      <div class="ss-ctas">
+        <button class="ss-cta" id="ss-cta" onclick="goFromSpot()">⚡ Start</button>
+        <button class="ss-cta-sec" onclick="closeSpot()">← Back to list</button>
+      </div>
+    </div>
+  </div><!-- /map-wrap -->
+</div>
+
+<!-- ── AR OVERLAY (full phone) ── -->
+<div class="ar-overlay" id="ar-overlay">
+  <div class="ar-cam-bg" id="ar-cam-bg"></div>
+  <div class="ar-grid"></div>
+  <div class="ar-top">
+    <div class="ar-badge"><div class="ar-live"></div>Gemini Vision · Active</div>
+    <button class="ar-x" onclick="closeAR()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+  </div>
+  <div class="ar-finder">
+    <div class="arc tl"></div><div class="arc tr"></div>
+    <div class="arc bl"></div><div class="arc br"></div>
+    <div class="ar-sweep" id="ar-sweep"></div>
+  </div>
+  <div class="ar-hint"><div class="ar-hint-pill" id="ar-hint-txt">Point at any landmark or exhibit</div></div>
+  <div class="ar-obj" id="ar-obj">
+    <div class="ar-obj-lbl"><div class="ar-obj-name" id="ar-obj-name">—</div><div class="ar-obj-era" id="ar-obj-era">—</div></div>
+    <div class="ar-obj-emoji" id="ar-obj-emoji">🏛</div>
+  </div>
+  <div class="ar-result" id="ar-result">
+    <div class="ar-card">
+      <div class="ar-card-hdr">
+        <div class="ar-card-ico" id="ar-r-ico">🏛</div>
+        <div><div class="ar-card-type" id="ar-r-type">✨ Identified</div><div class="ar-card-name" id="ar-r-name">—</div></div>
+      </div>
+      <div class="ar-card-desc" id="ar-r-desc">—</div>
+      <button class="ar-card-btn" id="ar-r-btn" onclick="goQuestAR()">⚡ Start Quest</button>
+    </div>
+  </div>
+  <button class="ar-sim-btn" id="ar-sim-btn" onclick="simAR()">
+    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg>
+    Simulate: Rosetta Stone
+  </button>
+</div>
+
+<!-- ── QUEST OVERLAY (full phone) ── -->
+<div class="quest-overlay" id="quest-overlay">
+  <div class="q-hero">
+    <img id="q-img" src="" alt="">
+    <div class="q-hero-overlay"></div>
+    <button class="q-hero-back" onclick="closeQuest()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+    <div class="q-hero-info">
+      <div class="q-hero-loc" id="q-loc">📍 —</div>
+      <div class="q-hero-name" id="q-name">—</div>
+    </div>
+  </div>
+  <div class="q-body">
+    <div class="q-prog" id="q-prog"></div>
+    <div class="q-card" id="q-card"></div>
+  </div>
+</div>
+
+<!-- ── RANK ── -->
+<div class="view" id="view-rank" style="padding:20px">
+  <div class="lb-title">Leaderboard 🏆</div>
+  <div class="lb-sub">Live · London Explorer · Updated every 5 min</div>
+  <div class="lb-filter-row">
+    <div class="lb-filter on" onclick="lbFilter(this)">Today</div>
+    <div class="lb-filter" onclick="lbFilter(this)">This Week</div>
+    <div class="lb-filter" onclick="lbFilter(this)">All Time</div>
+    <div class="lb-filter" onclick="lbFilter(this)">Friends</div>
+  </div>
+  <div class="my-rank-card">
+    <div class="my-rank-num">#4</div>
+    <div class="my-rank-ava">Y</div>
+    <div class="my-rank-info">
+      <div class="my-rank-name">You · 🇰🇷</div>
+      <div class="my-rank-pts" id="my-pts-disp">320 pts · 3 quests done</div>
+    </div>
+    <div class="my-rank-badge">↑ Rising</div>
+  </div>
+  <div class="lb-list" id="lb-list"></div>
+</div>
+
+<!-- ── REWARDS ── -->
+<div class="view" id="view-rewards" style="padding:20px">
+  <div class="rw-title">My Wallet 🎁</div>
+  <div class="rw-sub">Earned coupons & explorer rewards</div>
+  <div class="pass-active">
+    <div class="pa-top"><div class="pa-badge">London City Pass ✓</div><div class="pa-exp">Expires 23 May</div></div>
+    <div class="pa-name">Active Explorer</div>
+    <div class="pa-sub">Bloomsbury · British Museum area</div>
+    <div class="pa-stats">
+      <div><div class="pa-sv" id="wallet-pts">320</div><div class="pa-sl">Points</div></div>
+      <div style="margin-left:18px"><div class="pa-sv">3</div><div class="pa-sl">Quests</div></div>
+      <div style="margin-left:18px"><div class="pa-sv">3</div><div class="pa-sl">Coupons</div></div>
+    </div>
+  </div>
+  <div class="rw-sec">Earned Coupons</div>
+  <div class="coupon fc">
+    <div class="coupon-tag">Ready to Use</div>
+    <div class="coupon-from">☕ Museum Café · British Museum</div>
+    <div class="coupon-name">Free Hot Drink — Any Size</div>
+    <button class="coupon-btn" onclick="openPaywall()">Show Barcode →</button>
+  </div>
+  <div class="coupon cc">
+    <div class="coupon-tag">Valid 7 Days</div>
+    <div class="coupon-from">🖼 National Gallery</div>
+    <div class="coupon-name">Audio Guide — Complimentary Access</div>
+    <button class="coupon-btn" onclick="openPaywall()">Claim →</button>
+  </div>
+  <div class="coupon qc">
+    <div class="coupon-tag">Rank Reward</div>
+    <div class="coupon-from">⚡ Quest Completed</div>
+    <div class="coupon-name">Museum Shop — 15% Off Any Purchase</div>
+    <button class="coupon-btn" onclick="openPaywall()">Use →</button>
+  </div>
+  <div class="more-cities">
+    <div class="mc-title">🌍 Add Another City?</div>
+    <div class="mc-sub">Your adventure doesn't stop here.</div>
+    <div class="mc-row">
+      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1084/160/110" alt=""><div class="mc-city-name">Paris</div><div class="mc-city-price">£4.99</div></div>
+      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1031/160/110" alt=""><div class="mc-city-name">Tokyo</div><div class="mc-city-price">£4.99</div></div>
+      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1079/160/110" alt=""><div class="mc-city-name">Barcelona</div><div class="mc-city-price">£4.99</div></div>
+      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1076/160/110" alt=""><div class="mc-city-name">New York</div><div class="mc-city-price">£4.99</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<!-- TABBAR -->
+<div class="tabbar">
+  <button class="tab-btn active" id="tab-home" onclick="switchTab('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="tab-label">Home</span>
+  </button>
+  <button class="tab-btn" id="tab-map" onclick="switchTab('map')">
+    <svg viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+    <span class="tab-label">Map</span>
+  </button>
+  <button class="tab-btn" id="tab-ar" onclick="openAR(null)">
+    <svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg>
+    <span class="tab-label">AR Scan</span>
+  </button>
+  <button class="tab-btn" id="tab-rank" onclick="switchTab('rank')">
+    <svg viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+    <span class="tab-label">Ranking</span>
+  </button>
+  <button class="tab-btn" id="tab-rewards" onclick="switchTab('rewards')">
+    <svg viewBox="0 0 24 24"><path d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+    <span class="tab-label">Rewards</span>
+  </button>
+</div>
+
+</div><!-- /phone -->
+<script>
+/* ─── DATA ─── */
+const SPOTS=[
+  {id:1,name:'Tower Bridge',cat:'outdoor',emoji:'🌉',dist:'1.2km',pts:100,today:'8.4k',
+   lat:51.5055,lng:-0.0754,near:false,img:'https://picsum.photos/id/1043/400/300',
+   desc:'Opened in 1894, two bascule spans weigh 1,000 tons each and rise in 60 seconds. Walk within 50m — GPS detects your arrival automatically.',
+   trigger:'gps',steps:['Walk towards Tower Bridge','App detects you within 50m','Quest unlocks — no tapping needed'],
+   cta:'⚡ Navigate & Start Quest',ctaCls:'gps',
+   arData:{name:'Tower Bridge',era:'1894 · Victorian Gothic',emoji:'🌉',type:'📍 GPS Detected · 42m away',desc:'11,000 tons of steel, 8 years to build. Find the hidden Victorian crest inside the tower to complete step 4.',pts:100},
+   quest:{loc:'📍 Tower Bridge · South Bank',name:'Victorian Secrets',img:'https://picsum.photos/id/1043/400/300',
+     q:'How long did Tower Bridge take to build?',opts:['A. 4 years','B. 6 years','C. 8 years','D. 12 years'],ans:2,pts:100,reward:'🏰 Tower Bridge badge — now in your Rewards tab!'}},
+  {id:2,name:'Rosetta Stone',cat:'indoor',emoji:'🪨',dist:'Inside',pts:150,today:'2.1k',
+   lat:51.5194,lng:-0.1270,near:true,img:'https://picsum.photos/id/1040/400/300',
+   desc:'Carved in 196 BC, it unlocked 3,000 years of Egyptian history. Open AR Scan and point your camera — Gemini identifies it in ~2 seconds.',
+   trigger:'cam',steps:['Tap "AR Scan" tab below','Point camera at the Rosetta Stone','Gemini identifies it → quest begins'],
+   cta:'📸 Open AR Camera & Scan',ctaCls:'cam',
+   arData:{name:'Rosetta Stone',era:'196 BC · Egyptian Sculpture',emoji:'🪨',type:'✨ Identified · British Museum, Room 4',desc:'The same decree in three scripts. Champollion spent 20 years deciphering it. Five-step quest through ancient Egypt awaits.',pts:150},
+   quest:{loc:'📍 British Museum · Room 4',name:'Rosetta Stone Mystery',img:'https://picsum.photos/id/1040/400/300',
+     q:'The Rosetta Stone was discovered in 1799. Who found it?',opts:['A. British archaeologists','B. Napoleon\'s soldiers','C. Egyptian historians','D. Thomas Young'],ans:1,pts:150,reward:'☕ Free hot drink at Museum Café — check Rewards tab!'}},
+  {id:3,name:'Elgin Marbles',cat:'indoor',emoji:'🏛',dist:'Inside',pts:120,today:'1.8k',
+   lat:51.5195,lng:-0.1268,near:true,img:'https://picsum.photos/id/1059/400/300',
+   desc:'Carved 447 BC. Open AR Scan and aim at these 2,500-year-old friezes — AI narrates the ongoing London vs Athens debate.',
+   trigger:'cam',steps:['Tap "AR Scan" tab below','Aim camera at the marble sculptures','AI gives historical context + debate'],
+   cta:'📸 Open AR Camera & Scan',ctaCls:'cam',
+   arData:{name:'Elgin Marbles',era:'447 BC · Parthenon, Athens',emoji:'🏛',type:'✨ Identified · British Museum, Room 18',desc:'Half in London, half in Athens. Which side do you take? Earn your stance badge after completing the quest.',pts:120},
+   quest:{loc:'📍 British Museum · Room 18',name:'Whose Marbles?',img:'https://picsum.photos/id/1059/400/300',
+     q:'The Elgin Marbles originally adorned which Greek landmark?',opts:['A. The Colosseum','B. The Acropolis','C. The Olympieion','D. Temple of Hephaestus'],ans:1,pts:120,reward:'🏛 Cultural Debate badge earned!'}},
+  {id:4,name:'Trafalgar Square',cat:'outdoor',emoji:'🦁',dist:'2.8km',pts:80,today:'12k',
+   lat:51.5080,lng:-0.1281,near:false,img:'https://picsum.photos/id/1036/400/300',
+   desc:'Heart of London since 1844. Walk into the square — GPS auto-detects your entry and triggers a hidden-detail quest instantly.',
+   trigger:'gps',steps:['Walk to Trafalgar Square','Enter the square area','Quest starts — find what 95% of visitors miss'],
+   cta:'⚡ Navigate & Start Quest',ctaCls:'gps',
+   arData:{name:'Trafalgar Square',era:'1844 · Central London',emoji:'🦁',type:'📍 GPS Detected · Zone entered',desc:'Four bronze lions added in 1867. The hidden plaque at the column base — can you find it?',pts:80},
+   quest:{loc:'📍 Trafalgar Square · Central',name:'Square of Secrets',img:'https://picsum.photos/id/1036/400/300',
+     q:'How tall is Nelson\'s Column from base to tip?',opts:['A. 33.5 metres','B. 44.2 metres','C. 51.6 metres','D. 67.3 metres'],ans:2,pts:80,reward:'🦁 Trafalgar Explorer badge unlocked!'}},
+  {id:5,name:'The Breakfast Club',cat:'food',emoji:'🥞',dist:'320m',pts:50,today:'340',
+   lat:51.5201,lng:-0.1285,near:true,img:'https://picsum.photos/id/1080/400/300',
+   desc:'London\'s most Instagrammed all-day breakfast. Walk within 30m — 10% discount coupon unlocks automatically in Rewards tab.',
+   trigger:'gps',steps:['Walk within 30m of the restaurant','10% coupon appears in Rewards tab','Show screen at the counter'],
+   cta:'🎟 Navigate · Coupon Auto-unlocks',ctaCls:'food-c',
+   arData:{name:'The Breakfast Club',era:'Restaurant · Bloomsbury',emoji:'🥞',type:'📍 GPS Detected · 28m away',desc:'Full English, pancakes, and the best coffee in Bloomsbury. 10% coupon is active — check your Rewards tab.',pts:50},
+   quest:{loc:'📍 The Breakfast Club · Bloomsbury',name:'Breakfast Trail',img:'https://picsum.photos/id/1080/400/300',
+     q:'The Breakfast Club has locations across London. How many?',opts:['A. 3','B. 5','C. 7','D. 9'],ans:2,pts:50,reward:'🥞 10% discount coupon — check Rewards tab!'}},
+  {id:6,name:'Borough Market',cat:'food',emoji:'🧀',dist:'3.1km',pts:60,today:'5.2k',
+   lat:51.5052,lng:-0.0910,near:false,img:'https://picsum.photos/id/1070/400/300',
+   desc:'London\'s oldest market, trading since the 12th century. Walk in — a 5-stall food trail auto-starts.',
+   trigger:'gps',steps:['Head to Borough Market','Walk into the market area','5-stall trail starts — collect stamps'],
+   cta:'🍽 Navigate · Trail Auto-starts',ctaCls:'food-c',
+   arData:{name:'Borough Market',era:'12th century · Southwark',emoji:'🧀',type:'📍 GPS Detected · Market zone',desc:'Complete all 5 stall stamps to earn a £5 partner voucher.',pts:60},
+   quest:{loc:'📍 Borough Market · Southwark',name:'Food Trail',img:'https://picsum.photos/id/1070/400/300',
+     q:'Borough Market has traded on this site since which century?',opts:['A. 8th century','B. 10th century','C. 12th century','D. 14th century'],ans:2,pts:60,reward:'🧀 £5 stall voucher — check Rewards tab!'}}
+];
+
+const RANK_DATA=[
+  {pos:1,name:'Yuki T.',country:'🇯🇵',pts:890,color:'#3ecf8e'},
+  {pos:2,name:'Sophie M.',country:'🇫🇷',pts:740,color:'#4a9eff'},
+  {pos:3,name:'Carlos R.',country:'🇪🇸',pts:610,color:'#ff9142'},
+  {pos:5,name:'Anna K.',country:'🇩🇪',pts:280,color:'#ff5252'},
+  {pos:6,name:'James L.',country:'🇬🇧',pts:210,color:'#b57bff'},
+];
+
+/* ─── STATE ─── */
+let map,mapInited=false,currentSpot=null,proxSpot=null;
+let arIdx=0,answered=false,drawerOpen=false,myScore=320,currentLang='EN';
+
+/* ─── INIT ─── */
+window.addEventListener('load',()=>{
+  buildHomeList(SPOTS);
+  buildDrawerList(SPOTS);
+  buildRankList();
+  // Show onboarding after 800ms on first visit
+  setTimeout(startOnboarding, 800);
+});
+
+/* ─── ONBOARDING ─── */
+const OB_STEPS=[
+  {tab:'home',title:'Welcome to PlaySpot 👋',desc:'Explore London like a game. Complete quests, earn rewards, beat your friends.',next:'Got it · Show me around'},
+  {tab:'map',title:'Your adventure map 🗺️',desc:'Blue markers = Outdoor (GPS). Yellow = Indoor (Camera). Orange = Food rewards. Tap any marker to see details.',next:'Next →'},
+  {tab:'ar',title:'Point camera at anything 📸',desc:'For indoor spots like the Rosetta Stone — just open this tab and aim your camera. Gemini AI does the rest.',next:'Next →'},
+  {tab:'rank',title:'Compete with travellers 🏆',desc:'Every quest earns points. Climb the global leaderboard and unlock exclusive rewards.',next:'Let\'s go! →'},
+];
+let obStep=0;
+function startOnboarding(){
+  showObStep(0);
+}
+function showObStep(i){
+  const overlay=document.getElementById('ob-overlay');
+  const dim=document.getElementById('ob-dim');
+  const tip=document.getElementById('ob-tip');
+  if(i>=OB_STEPS.length){endOnboarding();return;}
+  obStep=i;
+  const s=OB_STEPS[i];
+  overlay.classList.add('active');
+  dim.classList.add('show');
+  // Switch to the right tab so user sees context
+  if(s.tab==='ar'){openAR(null);setTimeout(()=>positionTip(tip,s,i),300);return;}
+  else if(s.tab!=='home'){switchTab(s.tab);}
+  setTimeout(()=>positionTip(tip,s,i),200);
+}
+function positionTip(tip,s,i){
+  tip.innerHTML=`
+    <div class="ob-step">Step ${i+1} of ${OB_STEPS.length}</div>
+    <div class="ob-title">${s.title}</div>
+    <div class="ob-desc">${s.desc}</div>
+    <div class="ob-btns">
+      <button class="ob-skip" onclick="endOnboarding()">Skip</button>
+      <button class="ob-next" onclick="nextObStep()">${s.next}</button>
+    </div>`;
+  // Position based on step
+  const positions=[
+    {top:'30%',left:'50%',transform:'translateX(-50%)',arrowClass:'arrow-down'},
+    {top:'55%',left:'50%',transform:'translateX(-50%)',arrowClass:'arrow-down'},
+    {top:'35%',left:'50%',transform:'translateX(-50%)',arrowClass:''},
+    {top:'30%',left:'50%',transform:'translateX(-50%)',arrowClass:''},
+  ];
+  const p=positions[i]||positions[0];
+  tip.style.top=p.top;tip.style.left=p.left;tip.style.transform=p.transform;
+  tip.className='ob-tooltip '+p.arrowClass;
+  setTimeout(()=>tip.classList.add('show'),50);
+}
+function nextObStep(){
+  document.getElementById('ob-tip').classList.remove('show');
+  if(obStep===2)closeAR(); // close AR after AR step
+  setTimeout(()=>showObStep(obStep+1),200);
+}
+function endOnboarding(){
+  document.getElementById('ob-dim').classList.remove('show');
+  document.getElementById('ob-tip').classList.remove('show');
+  document.getElementById('ob-overlay').classList.remove('active');
+  closeAR();
+  switchTab('home');
+}
+
+/* ─── HOME LIST ─── */
+function buildHomeList(spots){
+  const el=document.getElementById('home-list');
+  el.innerHTML='';
+  spots.forEach(s=>{
+    const tc=s.cat==='indoor'?'#c8d400':s.cat==='food'?'var(--orange)':'var(--blue)';
+    const tb=s.cat==='indoor'?'var(--accent-dim)':s.cat==='food'?'var(--orange-dim)':'var(--blue-dim)';
+    const tTag=s.trigger==='cam'
+      ?`<span class="trigger-tag t-cam">📸 Camera</span>`
+      :`<span class="trigger-tag ${s.cat==='food'?'t-food':'t-gps'}">📍 GPS</span>`;
+    const typeLbl=s.cat==='indoor'?'🏛 Indoor':s.cat==='food'?'🍽 Food & Drink':'🌿 Outdoor';
+    el.innerHTML+=`<div class="scard" onclick="openSpotDetail(${s.id})">
+      <img class="scard-img" src="${s.img}" alt="">
+      <div class="scard-body">
+        <div>
+          <div class="scard-type" style="background:${tb};color:${tc}">${typeLbl}</div>
+          <div class="scard-name">${s.name}</div>
+          <div class="scard-sub">${s.dist} · ${s.today} today</div>
+        </div>
+        <div class="scard-bottom">
+          <div class="scard-pts" style="color:${tc}">+${s.pts} pts</div>
+          ${tTag}
+        </div>
+      </div>
+    </div>`;
+  });
+}
+function filterHome(el,cat){
+  document.querySelectorAll('#home-cats .cat-pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  buildHomeList(cat==='all'?SPOTS:SPOTS.filter(s=>s.cat===cat));
+}
+
+/* ─── DRAWER LIST ─── */
+function buildDrawerList(spots){
+  const el=document.getElementById('drawer-list');
+  el.innerHTML='';
+  document.getElementById('drawer-count').textContent=spots.length+' found';
+  spots.forEach(s=>{
+    const tc=s.cat==='indoor'?'var(--accent)':s.cat==='food'?'var(--orange)':'var(--blue)';
+    const tTag=s.trigger==='cam'
+      ?`<span class="trigger-tag t-cam" style="font-size:9px;padding:2px 6px;border-radius:8px">📸 Camera</span>`
+      :`<span class="trigger-tag ${s.cat==='food'?'t-food':'t-gps'}" style="font-size:9px;padding:2px 6px;border-radius:8px">📍 GPS</span>`;
+    el.innerHTML+=`<div class="dspot${s.near?' near':''}" onclick="openSpotDetail(${s.id})">
+      <div class="dspot-icon ${s.cat}">${s.emoji}</div>
+      <div class="dspot-mid"><div class="dspot-name">${s.name}</div><div>${tTag}</div></div>
+      <div class="dspot-right">
+        <div class="dspot-dist">${s.dist}</div>
+        <div class="dspot-pts" style="color:${tc}">+${s.pts} pts</div>
+      </div>
+    </div>`;
+  });
+}
+
+/* ─── MAP INIT ─── */
+function initMap(){
+  if(mapInited)return;mapInited=true;
+  map=L.map('leaflet-map',{center:[51.515,-0.105],zoom:14,zoomControl:false,attributionControl:false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
+  // GPS accuracy ring
+  L.circleMarker([51.5194,-0.1270],{radius:22,color:'rgba(74,158,255,.2)',fillColor:'rgba(74,158,255,.05)',fillOpacity:1,weight:1}).addTo(map);
+  // User marker
+  const uIcon=L.divIcon({className:'',html:'<div class="lf-user" style="position:relative"></div>',iconSize:[14,14],iconAnchor:[7,7]});
+  L.marker([51.5194,-0.1270],{icon:uIcon,zIndexOffset:1000}).addTo(map);
+  SPOTS.forEach(s=>{
+    const icon=L.divIcon({className:'',html:`<div class="lf-mk ${s.cat}${s.near?' near':''}">${s.emoji}</div>`,iconSize:[42,42],iconAnchor:[21,21]});
+    const mk=L.marker([s.lat,s.lng],{icon}).addTo(map);
+    const tHtml=s.trigger==='cam'?`<div class="pop-trigger cam">📸 Camera Recognition</div>`:`<div class="pop-trigger ${s.cat==='food'?'food-t':'gps'}">📍 GPS Auto-detect</div>`;
+    mk.bindPopup(`<div class="pop">
+      <div class="pop-tag ${s.cat}">${s.cat==='indoor'?'INDOOR':s.cat==='food'?'FOOD':'OUTDOOR'}</div>
+      <div class="pop-name">${s.name}</div>
+      <div class="pop-sub">${s.dist} · +${s.pts} pts · ${s.today} today</div>
+      ${tHtml}
+      <button class="pop-btn ${s.cat}" onclick="openSpotDetail(${s.id});document.querySelectorAll('.leaflet-popup-close-button').forEach(b=>b.click())">
+        ${s.trigger==='cam'?'📸 Open AR Camera →':'⚡ View Quest →'}
+      </button>
+    </div>`,{maxWidth:220,className:'lf-popup'});
+  });
+  setTimeout(()=>map.invalidateSize(),150);
+}
+
+/* ─── DRAWER TOGGLE ─── */
+function toggleDrawer(){
+  drawerOpen=!drawerOpen;
+  const d=document.getElementById('drawer');
+  d.style.height=drawerOpen?'55%':'112px';
+  document.getElementById('expand-hint').textContent=drawerOpen?'↓ Pull down':'↑ Pull up';
+  const offset=drawerOpen?'calc(55% + 10px)':'128px';
+  document.getElementById('map-right').style.bottom=offset;
+  document.getElementById('sim-panel').style.bottom=offset;
+}
+
+/* ─── SPOT DETAIL ─── */
+function openSpotDetail(id){
+  currentSpot=SPOTS.find(s=>s.id===id);if(!currentSpot)return;
+  const s=currentSpot;
+  document.getElementById('ss-img').src=s.img;
+  document.getElementById('ss-name').textContent=s.name;
+  const badge=document.getElementById('ss-type');
+  const tc=s.cat==='indoor'?'#c8d400':s.cat==='food'?'var(--orange)':'var(--blue)';
+  const tb=s.cat==='indoor'?'var(--accent-dim)':s.cat==='food'?'var(--orange-dim)':'var(--blue-dim)';
+  badge.textContent=s.cat==='indoor'?'🏛 Indoor':s.cat==='food'?'🍽 Food':'🌿 Outdoor';
+  badge.style.background=tb;badge.style.color=tc;
+  document.getElementById('ss-dist').textContent=s.dist;
+  document.getElementById('ss-pts').textContent='+'+s.pts;
+  document.getElementById('ss-today').textContent=s.today;
+  document.getElementById('ss-desc').textContent=s.desc;
+  const tb2=document.getElementById('ss-trig');
+  const tc2=s.trigger==='cam'?'cam':s.cat==='food'?'food-t':'gps';
+  tb2.className='trig-box '+tc2;
+  document.getElementById('ss-trig-icon').textContent=s.trigger==='cam'?'📸':s.cat==='food'?'🎟':'📍';
+  document.getElementById('ss-trig-title').textContent=s.trigger==='cam'?'How to trigger: Camera Recognition':'How to trigger: GPS Auto-detect';
+  document.getElementById('ss-trig-title').style.color=s.trigger==='cam'?'var(--accent)':s.cat==='food'?'var(--orange)':'var(--blue)';
+  document.getElementById('ss-trig-desc').textContent=s.trigger==='cam'
+    ?'Gemini Vision identifies the exhibit from your camera. No QR codes needed.'
+    :s.cat==='food'?'Walk close and your reward unlocks automatically.'
+    :'Walk close. GPS detects you without any action needed.';
+  document.getElementById('ss-trig-steps').innerHTML=s.steps.map((st,i)=>`<div class="trig-step"><div class="trig-n">${i+1}</div><span>${st}</span></div>`).join('');
+  const cta=document.getElementById('ss-cta');
+  cta.textContent=s.cta;cta.className='ss-cta '+(s.trigger==='cam'?'cam':s.cat==='food'?'food-c':'gps');
+  document.getElementById('spot-sheet').classList.add('show');
+  document.getElementById('drawer').style.display='none';
+  if(map)map.panTo([s.lat,s.lng],{animate:true,duration:.5});
+}
+function closeSpot(){
+  document.getElementById('spot-sheet').classList.remove('show');
+  document.getElementById('drawer').style.display='flex';
+  currentSpot=null;
+}
+function goFromSpot(){
+  if(!currentSpot)return;
+  closeSpot();
+  if(currentSpot.trigger==='cam')openAR(currentSpot);
+  else openQuest(currentSpot);
+}
+
+/* ─── TAB SWITCH ─── */
+function switchTab(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const tb=document.getElementById('tab-'+id);if(tb)tb.classList.add('active');
+  if(id==='map'){initMap();setTimeout(()=>{if(map)map.invalidateSize();},120);}
+}
+
+/* ─── FILTER MAP ─── */
+function filterMap(el,cat){
+  document.querySelectorAll('.map-cat').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  buildDrawerList(cat==='all'?SPOTS:SPOTS.filter(s=>s.cat===cat));
+}
+
+/* ─── PROXIMITY ─── */
+const PROX=[
+  {spotId:4,dist:'18m',sub:'GPS detected · Quest available',act:'Start →'},
+  {spotId:5,dist:'28m',sub:'GPS detected · Coupon ready',act:'Get →'},
+  {spotId:2,dist:'Inside',sub:'Camera trigger ready · Point & scan',act:'Scan →'},
+];
+let proxIdx=0;
+function triggerProx(cat){
+  const sc=PROX[proxIdx%PROX.length];
+  const spot=SPOTS.find(s=>s.cat===cat)||SPOTS[proxIdx%SPOTS.length];
+  proxSpot=spot;
+  const card=document.getElementById('prox-card');
+  card.className='prox-card '+spot.cat;
+  document.getElementById('prox-icon').textContent=spot.emoji;
+  document.getElementById('prox-dist').textContent=spot.dist==='Inside'?'Inside':sc.dist+' away';
+  document.getElementById('prox-name').textContent=spot.name;
+  document.getElementById('prox-sub').textContent=sc.sub;
+  document.getElementById('prox-action').textContent=sc.act;
+  const banner=document.getElementById('prox-banner');
+  banner.classList.add('show');
+  clearTimeout(window._pt);window._pt=setTimeout(()=>banner.classList.remove('show'),5500);
+  proxIdx++;
+}
+function proxGo(){
+  document.getElementById('prox-banner').classList.remove('show');
+  if(proxSpot)openSpotDetail(proxSpot.id);
+}
+
+/* ─── AR ─── */
+function openAR(spot){
+  const s=spot||SPOTS[1];
+  document.getElementById('ar-cam-bg').style.backgroundImage=`url(${s?s.img.replace('400/300','400/844'):'https://picsum.photos/id/1040/400/844'})`;
+  document.getElementById('ar-sweep').style.display='block';
+  document.getElementById('ar-hint-txt').textContent='Point at any landmark or exhibit';
+  document.getElementById('ar-obj').classList.remove('show');
+  document.getElementById('ar-result').classList.remove('show');
+  document.getElementById('ar-sim-btn').style.display='flex';
+  arIdx=SPOTS.findIndex(sp=>sp.id===(s?s.id:2));
+  document.getElementById('ar-overlay').classList.add('show');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const ta=document.getElementById('tab-ar');if(ta)ta.classList.add('active');
+}
+function closeAR(){document.getElementById('ar-overlay').classList.remove('show')}
+function simAR(){
+  const s=SPOTS[arIdx%SPOTS.length];
+  document.getElementById('ar-hint-txt').textContent='Gemini Vision analysing...';
+  document.getElementById('ar-sim-btn').style.display='none';
+  setTimeout(()=>{
+    document.getElementById('ar-sweep').style.display='none';
+    document.getElementById('ar-hint-txt').textContent='✓ Identified!';
+    document.getElementById('ar-obj-name').textContent=s.arData.name;
+    document.getElementById('ar-obj-era').textContent=s.arData.era;
+    document.getElementById('ar-obj-emoji').textContent=s.arData.emoji;
+    document.getElementById('ar-obj').classList.add('show');
+    setTimeout(()=>{
+      document.getElementById('ar-r-ico').textContent=s.arData.emoji;
+      document.getElementById('ar-r-type').textContent=s.arData.type;
+      document.getElementById('ar-r-name').textContent=s.arData.name;
+      document.getElementById('ar-r-desc').textContent=s.arData.desc;
+      document.getElementById('ar-r-btn').textContent=`⚡ Start Quest · +${s.arData.pts} pts`;
+      document.getElementById('ar-result').classList.add('show');
+    },500);
+    arIdx++;
+    setTimeout(()=>{
+      document.getElementById('ar-sim-btn').style.display='flex';
+      const next=SPOTS[arIdx%SPOTS.length];
+      document.getElementById('ar-sim-btn').lastChild.textContent=' Try next: '+next.name;
+    },2100);
+  },1700);
+}
+function goQuestAR(){
+  closeAR();
+  openQuest(SPOTS[(arIdx-1+SPOTS.length)%SPOTS.length]);
+}
+
+/* ─── QUEST ─── */
+function openQuest(spot){
+  const s=spot||SPOTS[0];const q=s.quest;
+  document.getElementById('q-img').src=q.img;
+  document.getElementById('q-loc').textContent=q.loc;
+  document.getElementById('q-name').textContent=q.name;
+  document.getElementById('q-prog').innerHTML=[0,1,2,3,4].map(i=>`<div class="q-dot ${i<2?'done':i===2?'now':''}"></div>`).join('');
+  document.getElementById('q-card').innerHTML=`
+    <div class="q-meta">
+      <div class="q-tag">Quiz · Step 3 of 5</div>
+      <div class="q-pts">+${q.pts}</div>
+    </div>
+    <div class="q-question">${q.q}</div>
+    <div class="q-opts">${q.opts.map((o,i)=>`<div class="q-opt" onclick="pickOpt(this,${i===q.ans},'${q.reward.replace(/'/g,"\\'")}',${q.pts})">${o}</div>`).join('')}</div>`;
+  answered=false;
+  document.getElementById('quest-overlay').classList.add('show');
+}
+function closeQuest(){document.getElementById('quest-overlay').classList.remove('show')}
+function pickOpt(el,ok,reward,pts){
+  if(answered)return;answered=true;
+  document.querySelectorAll('.q-opt').forEach(o=>o.style.pointerEvents='none');
+  if(ok){
+    el.classList.add('ok');
+    setTimeout(()=>{
+      myScore+=pts;
+      document.getElementById('score-val').textContent=myScore;
+      document.getElementById('my-pts-disp').textContent=myScore+' pts · '+Math.ceil(myScore/50)+' quests done';
+      document.getElementById('wallet-pts').textContent=myScore;
+      document.getElementById('q-card').innerHTML=`<div class="q-success">
+        <div class="q-success-emoji">🎉</div>
+        <div class="q-success-pts">+${pts}</div>
+        <div class="q-success-sub">Points earned!</div>
+        <div class="q-reward-pill">🎁 ${reward}</div>
+        <button class="q-next" onclick="closeQuest();switchTab('rewards')">View My Rewards →</button>
+      </div>`;
+    },500);
+  }else{
+    el.classList.add('no');
+    setTimeout(()=>{el.classList.remove('no');document.querySelectorAll('.q-opt').forEach(o=>o.style.pointerEvents='');answered=false;},500);
+  }
+}
+
+/* ─── RANK ─── */
+function buildRankList(){
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('lb-list').innerHTML=RANK_DATA.map(r=>`<div class="lb-row ${r.pos<=3?'top':''}">
+    <div class="lb-medal">${medals[r.pos-1]||r.pos}</div>
+    <div class="lb-ava" style="background:${r.color}20;color:${r.color};border:1px solid ${r.color}40">${r.name.substring(0,2)}</div>
+    <div class="lb-name">${r.name} ${r.country}</div>
+    <div class="lb-score">${r.pts} pts</div>
+  </div>`).join('');
+}
+function lbFilter(el){document.querySelectorAll('.lb-filter').forEach(f=>f.classList.remove('on'));el.classList.add('on')}
+
+/* ─── PAYWALL ─── */
+function openPaywall(){document.getElementById('paywall').classList.add('show')}
+function closePaywall(){document.getElementById('paywall').classList.remove('show')}
+function selPlan(el){document.querySelectorAll('.pw-plan').forEach(p=>p.classList.remove('sel'));el.classList.add('sel')}
+function doPurchase(){closePaywall();alert('Payment: Stripe / Apple Pay / Google Pay')}
+
+/* ─── SIDE MENU ─── */
+function openSM(){document.getElementById('side-menu').classList.add('open')}
+function closeSM(){document.getElementById('side-menu').classList.remove('open')}
+function setLang(el,code){
+  document.querySelectorAll('.sm-lang-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');currentLang=code;
+  document.getElementById('hdr-lang').textContent='🌐 '+code;
+  setTimeout(closeSM,200);
+}
+
+/* ─── UTILS ─── */
+function recenter(){if(map)map.panTo([51.5194,-0.1270],{animate:true,duration:.7})}
+
+// Init
+buildRankList();
+</script>
+</body>
+</html>
