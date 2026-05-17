@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -19,19 +19,17 @@
   --txt1:#f4f3ef;--txt2:#8a8780;--txt3:#46433f;
   --border:#1c1e20;--border2:#282b2e;
   --r:16px;--rs:10px;
-  --tab-h:68px; /* tabbar height — single source of truth */
+  --tab-h:68px;
 }
 html,body{height:100%;background:#000;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;overflow:hidden}
 .phone{width:390px;height:844px;max-height:100vh;background:var(--bg0);border-radius:50px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #090a0b,0 50px 140px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.05)}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
 
-/* STATUS BAR */
 .sb{display:flex;justify-content:space-between;align-items:center;padding:14px 24px 0;flex-shrink:0;z-index:40;position:relative}
 .sb-time{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--txt1)}
 .sb-icons{display:flex;gap:5px;align-items:center;color:var(--txt1)}
 .sb-icons svg{width:15px;height:15px;fill:currentColor}
 
-/* HEADER */
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 10px;flex-shrink:0;z-index:35;background:var(--bg0);border-bottom:1px solid var(--border)}
 .hdr-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent);letter-spacing:-.02em;cursor:pointer}
 .hdr-logo span{color:var(--txt1)}
@@ -45,22 +43,18 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .hdr-menu:active{background:var(--bg4)}
 .hdr-menu svg{width:16px;height:16px;stroke:var(--txt2);fill:none;stroke-width:2;stroke-linecap:round}
 
-/* CONTENT SHELL */
 .content{flex:1;position:relative;overflow:hidden;min-height:0}
 
-/* VIEWS — scrollable, padding-bottom = tabbar height so nothing hides behind tab */
 .view{display:none;flex-direction:column;height:100%;overflow-y:auto;padding-bottom:var(--tab-h)}
 .view.active{display:flex;animation:fadeUp .24s cubic-bezier(.2,.8,.4,1) both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-/* TABBAR — fixed height via CSS var */
 .tabbar{height:var(--tab-h);display:flex;flex-shrink:0;background:rgba(7,8,9,.97);border-top:1px solid var(--border);padding:8px 4px 20px;z-index:35;backdrop-filter:blur(20px)}
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:5px 2px;color:var(--txt3);transition:color .18s;min-height:44px;justify-content:center}
 .tab-btn.active{color:var(--accent)}
 .tab-btn svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tab-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
 
-/* ── ONBOARDING TOOLTIP SYSTEM ── */
 .onboard-overlay{position:absolute;inset:0;z-index:80;pointer-events:none}
 .onboard-overlay.active{pointer-events:all}
 .ob-dim{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(2px);opacity:0;transition:opacity .3s}
@@ -78,11 +72,9 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .ob-skip{font-size:11px;color:var(--txt3);cursor:pointer;background:none;border:none;padding:4px}
 .ob-next{background:var(--accent);border:none;border-radius:var(--rs);padding:8px 16px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#000;cursor:pointer;transition:opacity .15s;flex:1}
 .ob-next:active{opacity:.8}
-/* Highlight ring around target element */
 .ob-ring{position:absolute;border-radius:50%;border:2px solid var(--accent);pointer-events:none;animation:obRingPulse 1.4s ease-in-out infinite;z-index:81}
 @keyframes obRingPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,240,0,.5)}50%{box-shadow:0 0 0 8px rgba(232,240,0,0)}}
 
-/* SIDE MENU */
 .side-menu{position:absolute;inset:0;background:var(--bg0);z-index:60;transform:translateX(-100%);transition:transform .3s cubic-bezier(.2,.8,.4,1);display:flex;flex-direction:column}
 .side-menu.open{transform:translateX(0)}
 .sm-hdr{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--border)}
@@ -105,14 +97,10 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .sm-lang-pill.sel{background:var(--accent-dim);border-color:rgba(232,240,0,.3);color:var(--accent)}
 .sm-lang-pill:active{opacity:.7}
 
-/* OVERLAY / MODALS */
 .overlay{position:absolute;inset:0;background:rgba(0,0,0,.72);z-index:55;display:none;backdrop-filter:blur(5px)}
 .overlay.show{display:block;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-/* ══════════════════════
-   HOME VIEW
-══════════════════════ */
 #view-home{padding:0}
 .home-hero{position:relative;height:190px;flex-shrink:0;overflow:hidden}
 .home-hero-bg{position:absolute;inset:0;background:url('https://picsum.photos/id/1043/800/400') center/cover no-repeat;filter:brightness(.42) saturate(.8)}
@@ -126,7 +114,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .hstat-val{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--accent);margin-bottom:1px}
 .hstat-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em}
 .home-body{padding:16px 20px 8px;display:flex;flex-direction:column;gap:14px}
-/* Pass banner */
 .pass-banner{background:linear-gradient(135deg,#0c1100,#182000);border:1px solid rgba(232,240,0,.2);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .18s}
 .pass-banner:active{border-color:rgba(232,240,0,.45)}
 .pass-banner::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(232,240,0,.1),transparent 70%)}
@@ -141,14 +128,12 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .pb-cta{width:100%;background:var(--accent);border:none;border-radius:var(--rs);padding:13px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#000;cursor:pointer;transition:opacity .18s}
 .pb-cta:active{opacity:.8}
 .pb-social{font-size:10px;color:var(--txt3);text-align:center;margin-top:7px;display:flex;align-items:center;justify-content:center;gap:4px}
-/* Category pills */
 .cat-row{display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .cat-row::-webkit-scrollbar{display:none}
 .cat-pill{flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:11px;font-weight:600;color:var(--txt2);cursor:pointer;transition:all .18s;white-space:nowrap;display:flex;align-items:center;gap:5px}
 .cat-pill.on{background:var(--accent);border-color:var(--accent);color:#000}
 .cat-pill:active{opacity:.75}
 .cat-dot{width:7px;height:7px;border-radius:50%}
-/* Spot cards — home */
 .spot-list{display:flex;flex-direction:column;gap:8px}
 .scard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:stretch;overflow:hidden;cursor:pointer;transition:border-color .18s,transform .14s}
 .scard:active{transform:scale(.98);border-color:var(--border2)}
@@ -163,7 +148,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .t-gps{background:var(--blue-dim);color:var(--blue)}
 .t-cam{background:var(--accent-dim);color:var(--accent2)}
 .t-food{background:var(--orange-dim);color:var(--orange)}
-/* HOW IT WORKS strip */
 .how-strip{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px}
 .how-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:12px}
 .how-steps{display:flex;flex-direction:column;gap:10px}
@@ -172,24 +156,15 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .how-text{flex:1}
 .how-text-title{font-size:13px;font-weight:600;color:var(--txt1);margin-bottom:1px}
 .how-text-sub{font-size:11px;color:var(--txt2);line-height:1.4}
-/* Section header */
 .sec-hdr{display:flex;justify-content:space-between;align-items:center}
 .sec-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3)}
 .sec-link{font-size:11px;font-weight:600;color:var(--accent);cursor:pointer}
 
-/* ══════════════════════
-   MAP VIEW
-   KEY FIX: map-wrap uses absolute inset, drawer
-   positioned relative to map-wrap, NOT the phone.
-   Drawer bottom = 0 (sits above tabbar naturally
-   because tabbar is outside content).
-══════════════════════ */
 #view-map{padding:0;padding-bottom:0 !important;position:relative;overflow:hidden}
 .map-wrap{position:absolute;inset:0}
 #leaflet-map{position:absolute;inset:0;z-index:1}
 .leaflet-container{background:#0a0c0e !important}
 .leaflet-control-attribution,.leaflet-control-zoom{display:none}
-/* Floating top */
 .map-top{position:absolute;top:10px;left:12px;right:12px;z-index:20;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .map-search{display:flex;align-items:center;gap:9px;background:rgba(9,10,12,.92);border:1px solid var(--border2);border-radius:30px;padding:11px 16px;backdrop-filter:blur(18px);pointer-events:all}
 .map-search svg{width:14px;height:14px;stroke:var(--txt3);fill:none;stroke-width:2;flex-shrink:0}
@@ -198,17 +173,14 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .map-cats::-webkit-scrollbar{display:none}
 .map-cat{flex-shrink:0;background:rgba(9,10,12,.88);border:1px solid var(--border2);border-radius:20px;padding:6px 13px;font-size:11px;font-weight:600;color:var(--txt2);cursor:pointer;backdrop-filter:blur(14px);transition:all .18s;white-space:nowrap;display:flex;align-items:center;gap:5px}
 .map-cat.on{border-color:var(--accent);color:var(--accent);background:rgba(232,240,0,.12)}
-/* Legend pill (first-time hint) */
 .map-legend{position:absolute;top:10px;right:13px;z-index:21;display:flex;flex-direction:column;gap:5px}
 .legend-item{background:rgba(9,10,12,.88);border:1px solid var(--border2);border-radius:20px;padding:5px 10px;font-size:10px;font-weight:600;backdrop-filter:blur(12px);display:flex;align-items:center;gap:5px;white-space:nowrap}
-/* Right controls */
 .map-right{position:absolute;right:13px;z-index:20;display:flex;flex-direction:column;gap:7px}
 .map-ctrl{width:42px;height:42px;border-radius:50%;background:rgba(9,10,12,.9);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(14px);transition:all .18s;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 .map-ctrl:active{transform:scale(.93)}
 .map-ctrl svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .map-ctrl.locate svg{stroke:var(--blue)}
 .map-ctrl.ar-c svg{stroke:var(--accent)}
-/* Proximity banner */
 .prox-banner{position:absolute;left:12px;right:12px;z-index:30;pointer-events:all;display:none}
 .prox-banner.show{display:block;animation:slideDown .32s cubic-bezier(.2,.8,.4,1)}
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
@@ -235,12 +207,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .indoor .prox-action{border-color:var(--accent);color:var(--accent)}
 .food .prox-action{border-color:var(--orange);color:var(--orange)}
 .prox-action:active{opacity:.6}
-/* ── DRAWER ──
-   Bottom drawer lives inside map-wrap (absolute positioned).
-   peek = show 112px only (handle + count row + 2 spots peeking)
-   half = show 50% of map-wrap height
-   Bottom is 0 — tabbar is OUTSIDE .content so it's already above it.
-*/
 .drawer{position:absolute;left:0;right:0;bottom:0;z-index:25;
   background:rgba(9,10,11,.97);border-radius:22px 22px 0 0;
   border-top:1px solid var(--border2);backdrop-filter:blur(24px);
@@ -257,7 +223,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .drawer-expand-hint{font-size:10px;color:var(--txt3);display:flex;align-items:center;gap:3px}
 .drawer-list{overflow-y:auto;flex:1;padding:0 12px 16px}
 .drawer-list::-webkit-scrollbar{display:none}
-/* Spot row in drawer */
 .dspot{display:flex;align-items:center;gap:11px;padding:10px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:7px;cursor:pointer;transition:all .18s}
 .dspot:active{background:var(--bg3);border-color:var(--border2)}
 .dspot.near{border-color:rgba(232,240,0,.28);background:rgba(232,240,0,.04)}
@@ -270,9 +235,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .dspot-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
 .dspot-dist{font-family:'DM Mono',monospace;font-size:10px;color:var(--txt3)}
 .dspot-pts{font-size:10px;font-weight:700}
-/* ── SPOT DETAIL SHEET ──
-   Also inside map-wrap. max-height carefully set so CTA is always visible.
-*/
 .spot-sheet{position:absolute;bottom:0;left:0;right:0;z-index:30;
   background:var(--bg1);border-radius:24px 24px 0 0;border-top:1px solid var(--border2);
   display:none;flex-direction:column;
@@ -296,7 +258,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .ss-stat-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--txt1);margin-bottom:1px}
 .ss-stat-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em}
 .ss-desc{font-size:13px;color:var(--txt2);line-height:1.68;margin-bottom:11px}
-/* How to trigger */
 .trig-box{border-radius:var(--rs);padding:11px 13px;margin-bottom:0;display:flex;align-items:flex-start;gap:11px}
 .trig-box.gps{background:var(--blue-dim);border:1px solid rgba(74,158,255,.22)}
 .trig-box.cam{background:var(--accent-dim);border:1px solid rgba(232,240,0,.18)}
@@ -309,7 +270,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .trig-steps{margin-top:7px;display:flex;flex-direction:column;gap:5px}
 .trig-step{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--txt2)}
 .trig-n{width:16px;height:16px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--txt3);flex-shrink:0;margin-top:1px}
-/* CTAs — always visible, flex-shrink:0 */
 .ss-ctas{padding:12px 14px 22px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border);margin-top:12px;background:var(--bg1)}
 .ss-cta{width:100%;border:none;border-radius:var(--r);padding:15px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .18s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:-.01em}
 .ss-cta:active{opacity:.8}
@@ -318,12 +278,10 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .ss-cta.food-c{background:var(--orange);color:#fff}
 .ss-cta-sec{width:100%;background:transparent;border:1px solid var(--border2);border-radius:var(--r);padding:12px;font-size:13px;font-weight:600;color:var(--txt2);cursor:pointer;transition:background .18s}
 .ss-cta-sec:active{background:var(--bg3)}
-/* Sim buttons */
 .sim-panel{position:absolute;left:13px;z-index:22;display:flex;flex-direction:column;gap:5px}
 .sim-lbl{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);text-align:center;margin-bottom:1px}
 .sim-btn{background:rgba(9,10,12,.85);border:1px solid var(--border2);border-radius:9px;padding:7px 10px;font-size:10px;font-weight:600;color:var(--txt2);cursor:pointer;backdrop-filter:blur(14px);transition:all .18s;display:flex;align-items:center;gap:5px;white-space:nowrap}
 .sim-btn:active{background:var(--bg4);color:var(--txt1)}
-/* Leaflet */
 .lf-user{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--blue);position:relative}
 .lf-user::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:rgba(74,158,255,.18);animation:uPing 2s ease-out infinite}
 @keyframes uPing{0%{transform:scale(.7);opacity:.8}100%{transform:scale(2.2);opacity:0}}
@@ -356,9 +314,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .pop-btn.indoor{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(232,240,0,.2)}
 .pop-btn.food{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(255,145,66,.3)}
 
-/* ══════════════════════
-   AR OVERLAY
-══════════════════════ */
 .ar-overlay{position:absolute;inset:0;z-index:45;display:none;flex-direction:column}
 .ar-overlay.show{display:flex;animation:fadeIn .2s ease}
 .ar-cam-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.58) saturate(.75)}
@@ -369,7 +324,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 @keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.2}}
 .ar-x{background:rgba(7,8,9,.7);border:1px solid var(--border2);border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:var(--txt1)}
 .ar-x svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
-/* Viewfinder */
 .ar-finder{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:240px;height:240px;z-index:5}
 .arc{position:absolute;width:28px;height:28px;border-style:solid;border-color:var(--accent)}
 .arc.tl{top:0;left:0;border-width:3px 0 0 3px;border-radius:3px 0 0 0}
@@ -378,7 +332,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .arc.br{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 3px 0}
 .ar-sweep{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);box-shadow:0 0 10px 2px rgba(232,240,0,.4);animation:sweepMove 1.35s ease-in-out infinite}
 @keyframes sweepMove{0%{top:0}100%{top:calc(100% - 2px)}}
-/* Instruction hint inside AR */
 .ar-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,105px);z-index:5;text-align:center}
 .ar-hint-pill{background:rgba(7,8,9,.78);border-radius:20px;padding:6px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.07em;backdrop-filter:blur(8px);white-space:nowrap;display:inline-block}
 .ar-obj{position:absolute;top:50%;left:50%;transform:translate(-50%,-78%);z-index:6;text-align:center;display:none}
@@ -403,9 +356,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .ar-sim-btn:active{background:rgba(232,240,0,.22)}
 .ar-sim-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
 
-/* ══════════════════════
-   QUEST OVERLAY
-══════════════════════ */
 .quest-overlay{position:absolute;inset:0;z-index:45;background:var(--bg0);display:none;flex-direction:column;overflow-y:auto}
 .quest-overlay.show{display:flex;animation:fadeIn .2s ease}
 .q-hero{position:relative;height:165px;flex-shrink:0;overflow:hidden}
@@ -440,9 +390,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .q-reward-pill{background:var(--green-dim);border:1px solid var(--green);border-radius:var(--rs);padding:11px 14px;margin-top:11px;font-size:12px;color:var(--green);text-align:left;line-height:1.4}
 .q-next{width:100%;background:var(--accent);border:none;border-radius:var(--r);padding:16px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#000;cursor:pointer;margin-top:13px}
 
-/* ══════════════════════
-   RANK VIEW
-══════════════════════ */
 #view-rank{padding:20px}
 .lb-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--txt1);margin-bottom:3px}
 .lb-sub{font-size:12px;color:var(--txt2);margin-bottom:16px}
@@ -466,9 +413,9 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .lb-score{font-family:'DM Mono',monospace;font-size:12px;color:var(--txt2)}
 .lb-row.top .lb-score{color:var(--accent)}
 
-/* ══════════════════════
-   REWARDS VIEW
-══════════════════════ */
+/* ═══════════════════════════════════════════════
+   리워드 탭 — 쿠폰 카드 수정 (핵심 수정 부분)
+   ═══════════════════════════════════════════════ */
 #view-rewards{padding:20px}
 .rw-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--txt1);margin-bottom:3px}
 .rw-sub{font-size:12px;color:var(--txt2);margin-bottom:16px}
@@ -483,20 +430,90 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .pa-sv{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--accent)}
 .pa-sl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em}
 .rw-sec{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:9px;margin-top:14px}
-.coupon{border-radius:var(--r);border:1px solid;padding:15px;margin-bottom:9px;position:relative;overflow:hidden}
-.coupon::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;border-radius:4px 0 0 4px}
-.coupon.fc{border-color:rgba(255,145,66,.32);background:rgba(255,145,66,.05)}.coupon.fc::before{background:var(--orange)}
-.coupon.cc{border-color:rgba(74,158,255,.32);background:rgba(74,158,255,.05)}.coupon.cc::before{background:var(--blue)}
-.coupon.qc{border-color:rgba(232,240,0,.25);background:rgba(232,240,0,.04)}.coupon.qc::before{background:var(--accent)}
-.coupon-tag{position:absolute;top:11px;right:12px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+
+/* 쿠폰 카드 — 완전 재설계: 태그가 텍스트를 가리지 않도록 */
+.coupon{
+  border-radius:var(--r);
+  border:1px solid;
+  padding:14px 14px 14px 18px; /* 왼쪽 컬러 바 여백 */
+  margin-bottom:9px;
+  position:relative;
+  overflow:visible; /* hidden → visible 로 변경하여 잘림 방지 */
+}
+.coupon::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;bottom:0;
+  width:4px;
+  border-radius:4px 0 0 4px;
+}
+.coupon.fc{border-color:rgba(255,145,66,.32);background:rgba(255,145,66,.05)}
+.coupon.fc::before{background:var(--orange)}
+.coupon.cc{border-color:rgba(74,158,255,.32);background:rgba(74,158,255,.05)}
+.coupon.cc::before{background:var(--blue)}
+.coupon.qc{border-color:rgba(232,240,0,.25);background:rgba(232,240,0,.04)}
+.coupon.qc::before{background:var(--accent)}
+
+/* 태그: absolute → 인라인으로 변경 (가림 문제 해결 핵심) */
+.coupon-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:6px;
+}
+.coupon-tag{
+  /* position:absolute 제거 — 이제 flex 자식으로 인라인 배치 */
+  flex-shrink:0;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:3px 8px;
+  border-radius:4px;
+  white-space:nowrap;
+  margin-top:1px; /* 출처 텍스트와 수직 정렬 */
+}
 .fc .coupon-tag{background:var(--orange-dim);color:var(--orange)}
 .cc .coupon-tag{background:var(--blue-dim);color:var(--blue)}
 .qc .coupon-tag{background:var(--accent-dim);color:var(--accent2)}
-.coupon-from{font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
-.fc .coupon-from{color:var(--orange)}.cc .coupon-from{color:var(--blue)}.qc .coupon-from{color:var(--accent2)}
-.coupon-name{font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:11px;padding-right:55px}
-.coupon-btn{background:rgba(0,0,0,.3);border:none;color:var(--txt1);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px 15px;min-height:38px;border-radius:var(--rs);cursor:pointer;transition:background .18s}
+
+.coupon-from{
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  flex:1;
+  min-width:0;
+}
+.fc .coupon-from{color:var(--orange)}
+.cc .coupon-from{color:var(--blue)}
+.qc .coupon-from{color:var(--accent2)}
+
+/* 쿠폰 이름: padding-right 제거 (태그가 이제 인라인이므로 불필요) */
+.coupon-name{
+  font-size:14px;
+  font-weight:600;
+  color:var(--txt1);
+  margin-bottom:11px;
+  line-height:1.4;
+  /* padding-right 제거 */
+}
+
+.coupon-btn{
+  background:rgba(0,0,0,.3);
+  border:none;
+  color:var(--txt1);
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;
+  font-weight:600;
+  padding:8px 15px;
+  min-height:38px;
+  border-radius:var(--rs);
+  cursor:pointer;
+  transition:background .18s;
+}
 .coupon-btn:active{background:rgba(0,0,0,.5)}
+
 .more-cities{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:15px;margin-top:14px}
 .mc-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--txt1);margin-bottom:3px}
 .mc-sub{font-size:12px;color:var(--txt2);margin-bottom:11px}
@@ -508,7 +525,6 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .mc-city-name{font-size:11px;font-weight:600;color:var(--txt1);padding:4px 7px;background:var(--bg3)}
 .mc-city-price{font-size:9px;color:var(--accent);padding:0 7px 5px;background:var(--bg3)}
 
-/* PAYWALL */
 .paywall{position:absolute;inset:0;z-index:50;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);display:none;align-items:flex-end}
 .paywall.show{display:flex;animation:fadeIn .2s ease}
 .pw-sheet{width:100%;background:var(--bg1);border-radius:28px 28px 0 0;padding:24px 22px 32px;position:relative}
@@ -521,7 +537,7 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 .pw-plans{display:flex;gap:7px;margin-bottom:16px}
 .pw-plan{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 9px;text-align:center;cursor:pointer;transition:all .18s;position:relative}
 .pw-plan.sel{border-color:var(--accent);background:var(--accent-dim)}
-.pw-plan.pop::before{content:'BEST';position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-size:8px;font-weight:700;letter-spacing:.08em;padding:2px 7px;border-radius:10px}
+.pw-plan.pop::before{content:'추천';position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-size:8px;font-weight:700;letter-spacing:.08em;padding:2px 7px;border-radius:10px}
 .pw-plan-price{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--txt1);margin-bottom:1px}
 .pw-plan-period{font-size:10px;color:var(--txt3)}
 .pw-plan-label{font-size:11px;font-weight:600;color:var(--txt2);margin-top:4px}
@@ -536,73 +552,73 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
 <body>
 <div class="phone">
 
-<!-- PAYWALL -->
+<!-- 결제 화면 -->
 <div class="paywall" id="paywall">
   <div class="pw-sheet">
     <button class="pw-close" onclick="closePaywall()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
     <span class="pw-emoji">🗺️</span>
-    <div class="pw-title">Unlock London</div>
-    <div class="pw-sub">100+ spots · Real AI guides · Local rewards<br>12,400+ travellers this month</div>
-    <div class="pw-social">🔥 <strong style="color:var(--txt1)">47 people</strong> bought a pass in the last hour</div>
+    <div class="pw-title">런던 잠금 해제</div>
+    <div class="pw-sub">100+ 스팟 · AI 가이드 · 로컬 리워드<br>이번 달 12,400+ 여행자 이용 중</div>
+    <div class="pw-social">🔥 지난 1시간 동안 <strong style="color:var(--txt1)">47명</strong>이 패스를 구매했어요</div>
     <div class="pw-plans">
-      <div class="pw-plan" onclick="selPlan(this)"><div class="pw-plan-price">£4.99</div><div class="pw-plan-period">24 hrs</div><div class="pw-plan-label">Day pass</div></div>
-      <div class="pw-plan pop sel" onclick="selPlan(this)"><div class="pw-plan-price">£7.99</div><div class="pw-plan-period">7 days</div><div class="pw-plan-label">City pass</div></div>
-      <div class="pw-plan" onclick="selPlan(this)"><div class="pw-plan-price">£14.99</div><div class="pw-plan-period">30 days</div><div class="pw-plan-label">All cities</div></div>
+      <div class="pw-plan" onclick="selPlan(this)"><div class="pw-plan-price">£4.99</div><div class="pw-plan-period">24시간</div><div class="pw-plan-label">당일 패스</div></div>
+      <div class="pw-plan pop sel" onclick="selPlan(this)"><div class="pw-plan-price">£7.99</div><div class="pw-plan-period">7일</div><div class="pw-plan-label">시티 패스</div></div>
+      <div class="pw-plan" onclick="selPlan(this)"><div class="pw-plan-price">£14.99</div><div class="pw-plan-period">30일</div><div class="pw-plan-label">전 도시</div></div>
     </div>
     <div class="pw-feats">
-      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>100+ AR spots across London</div>
-      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Gemini AI — point camera, get instant insight</div>
-      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Partner rewards: cafés, shops, museums</div>
-      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>7 languages: EN KO JA ZH ES FR DE</div>
+      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>런던 전역 100+ AR 스팟</div>
+      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Gemini AI — 카메라로 가리키면 즉시 인식</div>
+      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>파트너 리워드: 카페, 쇼핑, 박물관</div>
+      <div class="pw-feat"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>7개 언어 지원: 한 영 일 중 스 불 독</div>
     </div>
-    <button class="pw-cta" onclick="doPurchase()">Get London City Pass — £7.99</button>
-    <div class="pw-fine">Cancel anytime · Instant access · No hidden fees</div>
+    <button class="pw-cta" onclick="doPurchase()">런던 시티 패스 구매 — £7.99</button>
+    <div class="pw-fine">언제든 취소 가능 · 즉시 이용 · 숨겨진 요금 없음</div>
   </div>
 </div>
 
-<!-- SIDE MENU -->
+<!-- 사이드 메뉴 -->
 <div class="side-menu" id="side-menu">
   <div class="sm-hdr">
     <div class="sm-logo">Play<span>Spot</span></div>
     <button class="sm-close" onclick="closeSM()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
   </div>
   <div class="sm-body">
-    <div class="sm-section">Language · 언어</div>
+    <div class="sm-section">언어 · Language</div>
     <div class="sm-lang-grid" id="lang-grid">
-      <div class="sm-lang-pill sel" onclick="setLang(this,'EN')">🇬🇧 EN</div>
-      <div class="sm-lang-pill" onclick="setLang(this,'KO')">🇰🇷 한국어</div>
+      <div class="sm-lang-pill" onclick="setLang(this,'EN')">🇬🇧 EN</div>
+      <div class="sm-lang-pill sel" onclick="setLang(this,'KO')">🇰🇷 한국어</div>
       <div class="sm-lang-pill" onclick="setLang(this,'JA')">🇯🇵 日本語</div>
       <div class="sm-lang-pill" onclick="setLang(this,'ZH')">🇨🇳 中文</div>
       <div class="sm-lang-pill" onclick="setLang(this,'ES')">🇪🇸 ES</div>
       <div class="sm-lang-pill" onclick="setLang(this,'FR')">🇫🇷 FR</div>
       <div class="sm-lang-pill" onclick="setLang(this,'DE')">🇩🇪 DE</div>
     </div>
-    <div class="sm-section">Explore</div>
+    <div class="sm-section">탐험</div>
     <div class="sm-item" onclick="closeSM();switchTab('home')">
       <div class="sm-item-icon" style="background:var(--blue-dim)">🏙</div>
-      <div class="sm-item-info"><div class="sm-item-name">London Explorer</div><div class="sm-item-sub">100+ spots · AR quests</div></div>
+      <div class="sm-item-info"><div class="sm-item-name">런던 익스플로러</div><div class="sm-item-sub">100+ 스팟 · AR 퀘스트</div></div>
       <div class="sm-item-arr"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
     </div>
     <div class="sm-item" onclick="closeSM();openPaywall()">
       <div class="sm-item-icon" style="background:var(--accent-dim)">🗺️</div>
-      <div class="sm-item-info"><div class="sm-item-name">Get City Pass</div><div class="sm-item-sub">From £4.99 · Unlock all spots</div></div>
+      <div class="sm-item-info"><div class="sm-item-name">시티 패스 구매</div><div class="sm-item-sub">£4.99부터 · 전 스팟 잠금 해제</div></div>
       <div class="sm-item-arr"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
     </div>
-    <div class="sm-section">Coming Soon</div>
+    <div class="sm-section">출시 예정</div>
     <div class="sm-item" style="opacity:.4;pointer-events:none">
       <div class="sm-item-icon" style="background:var(--orange-dim)">🗼</div>
-      <div class="sm-item-info"><div class="sm-item-name">Paris Explorer</div><div class="sm-item-sub">Q3 2026</div></div>
+      <div class="sm-item-info"><div class="sm-item-name">파리 익스플로러</div><div class="sm-item-sub">2026년 3분기</div></div>
     </div>
   </div>
 </div>
 
-<!-- ONBOARDING OVERLAY -->
+<!-- 온보딩 오버레이 -->
 <div class="onboard-overlay" id="ob-overlay">
   <div class="ob-dim" id="ob-dim"></div>
   <div class="ob-tooltip" id="ob-tip"></div>
 </div>
 
-<!-- STATUS BAR -->
+<!-- 상태바 -->
 <div class="sb">
   <div class="sb-time">9:41</div>
   <div class="sb-icons">
@@ -611,114 +627,109 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
   </div>
 </div>
 
-<!-- HEADER -->
+<!-- 헤더 -->
 <div class="hdr" id="main-hdr">
   <div class="hdr-logo" onclick="switchTab('home')">Play<span>Spot</span></div>
   <div class="hdr-right">
-    <div class="hdr-lang" id="hdr-lang" onclick="openSM()">🌐 EN</div>
-    <div class="hdr-score"><span class="hdr-score-val" id="score-val">320</span><span class="hdr-score-lbl"> pts</span></div>
+    <div class="hdr-lang" id="hdr-lang" onclick="openSM()">🌐 한국어</div>
+    <div class="hdr-score"><span class="hdr-score-val" id="score-val">320</span><span class="hdr-score-lbl"> pt</span></div>
     <div class="hdr-menu" onclick="openSM()"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
   </div>
 </div>
 
-<!-- CONTENT -->
+<!-- 콘텐츠 -->
 <div class="content">
 
-<!-- ── HOME ── -->
+<!-- ── 홈 ── -->
 <div class="view active" id="view-home">
   <div class="home-hero">
     <div class="home-hero-bg"></div>
     <div class="home-hero-overlay"></div>
     <div class="home-hero-content">
-      <div class="home-hero-eye">📍 London · 6 spots nearby</div>
-      <div class="home-hero-title">Explore London<br>Like Never Before</div>
-      <div class="home-hero-sub">Point your camera at anything · AI tells the story</div>
+      <div class="home-hero-eye">📍 런던 · 주변 스팟 6곳</div>
+      <div class="home-hero-title">런던을<br>새롭게 탐험하세요</div>
+      <div class="home-hero-sub">카메라를 가리키면 · AI가 이야기를 들려줍니다</div>
     </div>
   </div>
   <div class="home-stats">
-    <div class="home-stat"><div class="hstat-val">100+</div><div class="hstat-lbl">Spots</div></div>
-    <div class="home-stat"><div class="hstat-val">2hrs</div><div class="hstat-lbl">Avg tour</div></div>
-    <div class="home-stat"><div class="hstat-val">12k+</div><div class="hstat-lbl">Players</div></div>
-    <div class="home-stat"><div class="hstat-val">4.9★</div><div class="hstat-lbl">Rating</div></div>
+    <div class="home-stat"><div class="hstat-val">100+</div><div class="hstat-lbl">스팟</div></div>
+    <div class="home-stat"><div class="hstat-val">2시간</div><div class="hstat-lbl">평균 투어</div></div>
+    <div class="home-stat"><div class="hstat-val">12k+</div><div class="hstat-lbl">플레이어</div></div>
+    <div class="home-stat"><div class="hstat-val">4.9★</div><div class="hstat-lbl">평점</div></div>
   </div>
   <div class="home-body">
-    <!-- HOW IT WORKS — first thing new users see -->
     <div class="how-strip" id="how-strip">
-      <div class="how-title">How it works</div>
+      <div class="how-title">이용 방법</div>
       <div class="how-steps">
         <div class="how-step">
           <div class="how-num">1</div>
           <div class="how-text">
-            <div class="how-text-title">🌿 Outdoor spots → Walk close</div>
-            <div class="how-text-sub">GPS detects you automatically. Quest unlocks as you arrive.</div>
+            <div class="how-text-title">🌿 야외 스팟 → 가까이 걸어가세요</div>
+            <div class="how-text-sub">GPS가 자동으로 감지합니다. 도착하면 퀘스트가 자동으로 열립니다.</div>
           </div>
         </div>
         <div class="how-step">
           <div class="how-num">2</div>
           <div class="how-text">
-            <div class="how-text-title">🏛 Indoor spots → Point camera</div>
-            <div class="how-text-sub">Open AR Scan, aim at any exhibit. Gemini AI identifies it instantly.</div>
+            <div class="how-text-title">🏛 실내 스팟 → 카메라를 가리키세요</div>
+            <div class="how-text-sub">AR 스캔을 열고 전시물에 겨냥하면 Gemini AI가 즉시 인식합니다.</div>
           </div>
         </div>
         <div class="how-step">
           <div class="how-num">3</div>
           <div class="how-text">
-            <div class="how-text-title">🍽 Food spots → Just walk by</div>
-            <div class="how-text-sub">Discount coupon appears automatically in your Rewards tab.</div>
+            <div class="how-text-title">🍽 음식 스팟 → 그냥 지나가세요</div>
+            <div class="how-text-sub">할인 쿠폰이 리워드 탭에 자동으로 나타납니다.</div>
           </div>
         </div>
       </div>
     </div>
-    <!-- Pass upsell -->
     <div class="pass-banner" onclick="openPaywall()">
       <div class="pb-top">
-        <div class="pb-badge">🔥 Limited Offer</div>
-        <div><div class="pb-price">£7.99</div><div class="pb-price-sub">/ 7 days</div></div>
+        <div class="pb-badge">🔥 한정 혜택</div>
+        <div><div class="pb-price">£7.99</div><div class="pb-price-sub">/ 7일</div></div>
       </div>
-      <div class="pb-title">London City Pass</div>
-      <div class="pb-desc">Skip the £25+ guided tours. Get AI-powered stories, AR quests & real local rewards.</div>
+      <div class="pb-title">런던 시티 패스</div>
+      <div class="pb-desc">£25+ 가이드 투어는 이제 그만. AI 스토리, AR 퀘스트 & 진짜 로컬 리워드를 만나보세요.</div>
       <div class="pb-feats">
-        <div class="pb-feat">🏛 100+ Spots</div>
+        <div class="pb-feat">🏛 100+ 스팟</div>
         <div class="pb-feat">📸 AR + AI</div>
-        <div class="pb-feat">🎁 Real Rewards</div>
-        <div class="pb-feat">🌍 7 Languages</div>
+        <div class="pb-feat">🎁 실제 리워드</div>
+        <div class="pb-feat">🌍 7개 언어</div>
       </div>
-      <button class="pb-cta">Unlock London — £7.99 →</button>
-      <div class="pb-social">🔥 47 people bought in the last hour</div>
+      <button class="pb-cta">런던 잠금 해제 — £7.99 →</button>
+      <div class="pb-social">🔥 지난 1시간 동안 47명이 구매했어요</div>
     </div>
-    <!-- Filter + spots -->
     <div class="sec-hdr">
-      <div class="sec-title">Nearby Spots</div>
-      <div class="sec-link" onclick="switchTab('map')">See on Map →</div>
+      <div class="sec-title">주변 스팟</div>
+      <div class="sec-link" onclick="switchTab('map')">지도에서 보기 →</div>
     </div>
     <div class="cat-row" id="home-cats">
-      <div class="cat-pill on" onclick="filterHome(this,'all')">All</div>
-      <div class="cat-pill" onclick="filterHome(this,'outdoor')"><span class="cat-dot" style="background:var(--blue)"></span>Outdoor</div>
-      <div class="cat-pill" onclick="filterHome(this,'indoor')"><span class="cat-dot" style="background:var(--accent)"></span>Indoor</div>
-      <div class="cat-pill" onclick="filterHome(this,'food')"><span class="cat-dot" style="background:var(--orange)"></span>Food</div>
+      <div class="cat-pill on" onclick="filterHome(this,'all')">전체</div>
+      <div class="cat-pill" onclick="filterHome(this,'outdoor')"><span class="cat-dot" style="background:var(--blue)"></span>야외</div>
+      <div class="cat-pill" onclick="filterHome(this,'indoor')"><span class="cat-dot" style="background:var(--accent)"></span>실내</div>
+      <div class="cat-pill" onclick="filterHome(this,'food')"><span class="cat-dot" style="background:var(--orange)"></span>음식</div>
     </div>
     <div class="spot-list" id="home-list"></div>
   </div>
 </div>
 
-<!-- ── MAP ── -->
+<!-- ── 지도 ── -->
 <div class="view" id="view-map" style="padding-bottom:0 !important;overflow:hidden">
   <div class="map-wrap" id="map-wrap">
     <div id="leaflet-map"></div>
-    <!-- Top search + categories -->
     <div class="map-top">
       <div class="map-search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
-        <span class="map-search-txt">Search London spots...</span>
+        <span class="map-search-txt">런던 스팟 검색...</span>
       </div>
       <div class="map-cats" id="map-cats">
-        <div class="map-cat on" onclick="filterMap(this,'all')">All</div>
-        <div class="map-cat" onclick="filterMap(this,'outdoor')"><span style="color:var(--blue);margin-right:3px">●</span>Outdoor GPS</div>
-        <div class="map-cat" onclick="filterMap(this,'indoor')"><span style="color:var(--accent);margin-right:3px">●</span>Indoor Camera</div>
-        <div class="map-cat" onclick="filterMap(this,'food')"><span style="color:var(--orange);margin-right:3px">●</span>Food</div>
+        <div class="map-cat on" onclick="filterMap(this,'all')">전체</div>
+        <div class="map-cat" onclick="filterMap(this,'outdoor')"><span style="color:var(--blue);margin-right:3px">●</span>야외 GPS</div>
+        <div class="map-cat" onclick="filterMap(this,'indoor')"><span style="color:var(--accent);margin-right:3px">●</span>실내 카메라</div>
+        <div class="map-cat" onclick="filterMap(this,'food')"><span style="color:var(--orange);margin-right:3px">●</span>음식</div>
       </div>
     </div>
-    <!-- Proximity banner -->
     <div class="prox-banner" id="prox-banner" style="top:128px">
       <div class="prox-card" id="prox-card">
         <div class="prox-ping">
@@ -726,38 +737,34 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
           <div class="prox-icon-el" id="prox-icon">⚡</div>
         </div>
         <div class="prox-info">
-          <div class="prox-dist" id="prox-dist">18m away</div>
-          <div class="prox-name" id="prox-name">Tower Bridge</div>
-          <div class="prox-sub" id="prox-sub">GPS detected · Quest unlocks</div>
+          <div class="prox-dist" id="prox-dist">18m 거리</div>
+          <div class="prox-name" id="prox-name">타워 브리지</div>
+          <div class="prox-sub" id="prox-sub">GPS 감지됨 · 퀘스트 잠금 해제</div>
         </div>
-        <button class="prox-action" id="prox-action" onclick="proxGo()">Go →</button>
+        <button class="prox-action" id="prox-action" onclick="proxGo()">이동 →</button>
       </div>
     </div>
-    <!-- Right controls — positioned above drawer -->
     <div class="map-right" id="map-right" style="bottom:128px">
       <div class="map-ctrl locate" onclick="recenter()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke-linecap="round"/></svg></div>
       <div class="map-ctrl ar-c" onclick="openAR(null)"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg></div>
     </div>
-    <!-- Sim panel — above drawer -->
     <div class="sim-panel" id="sim-panel" style="bottom:128px">
-      <div class="sim-lbl">Simulate</div>
-      <div class="sim-btn" onclick="triggerProx('outdoor')">📍 Outdoor</div>
-      <div class="sim-btn" onclick="triggerProx('indoor')">📸 Indoor</div>
-      <div class="sim-btn" onclick="triggerProx('food')">🍽 Food</div>
+      <div class="sim-lbl">시뮬레이션</div>
+      <div class="sim-btn" onclick="triggerProx('outdoor')">📍 야외</div>
+      <div class="sim-btn" onclick="triggerProx('indoor')">📸 실내</div>
+      <div class="sim-btn" onclick="triggerProx('food')">🍽 음식</div>
     </div>
-    <!-- DRAWER -->
     <div class="drawer" id="drawer">
       <div class="drawer-drag" onclick="toggleDrawer()"><div class="drawer-handle"></div></div>
       <div class="drawer-peek-row">
-        <div class="drawer-peek-title">Spots Near You</div>
+        <div class="drawer-peek-title">주변 스팟</div>
         <div class="drawer-peek-right">
-          <div class="drawer-count" id="drawer-count">6 found</div>
-          <div class="drawer-expand-hint" id="expand-hint">↑ Pull up</div>
+          <div class="drawer-count" id="drawer-count">6개 발견</div>
+          <div class="drawer-expand-hint" id="expand-hint">↑ 위로 당기기</div>
         </div>
       </div>
       <div class="drawer-list" id="drawer-list"></div>
     </div>
-    <!-- SPOT DETAIL SHEET -->
     <div class="spot-sheet" id="spot-sheet">
       <div class="ss-handle-row"><div class="ss-handle"></div></div>
       <div class="ss-img">
@@ -765,40 +772,40 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
         <div class="ss-img-overlay"></div>
         <button class="ss-img-close" onclick="closeSpot()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
         <div class="ss-img-info">
-          <div class="ss-type-badge" id="ss-type">Outdoor</div>
-          <div class="ss-name" id="ss-name">Tower Bridge</div>
+          <div class="ss-type-badge" id="ss-type">야외</div>
+          <div class="ss-name" id="ss-name">타워 브리지</div>
         </div>
       </div>
       <div class="ss-scroll">
         <div class="ss-stats">
-          <div class="ss-stat"><div class="ss-stat-val" id="ss-dist">—</div><div class="ss-stat-lbl">Distance</div></div>
-          <div class="ss-stat"><div class="ss-stat-val" id="ss-pts">—</div><div class="ss-stat-lbl">Points</div></div>
-          <div class="ss-stat"><div class="ss-stat-val" id="ss-today">—</div><div class="ss-stat-lbl">Visitors</div></div>
+          <div class="ss-stat"><div class="ss-stat-val" id="ss-dist">—</div><div class="ss-stat-lbl">거리</div></div>
+          <div class="ss-stat"><div class="ss-stat-val" id="ss-pts">—</div><div class="ss-stat-lbl">포인트</div></div>
+          <div class="ss-stat"><div class="ss-stat-val" id="ss-today">—</div><div class="ss-stat-lbl">방문자</div></div>
         </div>
         <div class="ss-desc" id="ss-desc">—</div>
         <div class="trig-box" id="ss-trig">
           <div class="trig-icon" id="ss-trig-icon">📍</div>
           <div class="trig-body">
-            <div class="trig-title" id="ss-trig-title">GPS Auto-detect</div>
-            <div class="trig-desc" id="ss-trig-desc">Walk close and the app detects you.</div>
+            <div class="trig-title" id="ss-trig-title">GPS 자동 감지</div>
+            <div class="trig-desc" id="ss-trig-desc">가까이 걸어가면 앱이 자동으로 감지합니다.</div>
             <div class="trig-steps" id="ss-trig-steps"></div>
           </div>
         </div>
       </div>
       <div class="ss-ctas">
-        <button class="ss-cta" id="ss-cta" onclick="goFromSpot()">⚡ Start</button>
-        <button class="ss-cta-sec" onclick="closeSpot()">← Back to list</button>
+        <button class="ss-cta" id="ss-cta" onclick="goFromSpot()">⚡ 시작</button>
+        <button class="ss-cta-sec" onclick="closeSpot()">← 목록으로 돌아가기</button>
       </div>
     </div>
-  </div><!-- /map-wrap -->
+  </div>
 </div>
 
-<!-- ── AR OVERLAY (full phone) ── -->
+<!-- ── AR 오버레이 ── -->
 <div class="ar-overlay" id="ar-overlay">
   <div class="ar-cam-bg" id="ar-cam-bg"></div>
   <div class="ar-grid"></div>
   <div class="ar-top">
-    <div class="ar-badge"><div class="ar-live"></div>Gemini Vision · Active</div>
+    <div class="ar-badge"><div class="ar-live"></div>Gemini Vision · 활성화</div>
     <button class="ar-x" onclick="closeAR()"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
   </div>
   <div class="ar-finder">
@@ -806,7 +813,7 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
     <div class="arc bl"></div><div class="arc br"></div>
     <div class="ar-sweep" id="ar-sweep"></div>
   </div>
-  <div class="ar-hint"><div class="ar-hint-pill" id="ar-hint-txt">Point at any landmark or exhibit</div></div>
+  <div class="ar-hint"><div class="ar-hint-pill" id="ar-hint-txt">랜드마크나 전시물에 카메라를 가리키세요</div></div>
   <div class="ar-obj" id="ar-obj">
     <div class="ar-obj-lbl"><div class="ar-obj-name" id="ar-obj-name">—</div><div class="ar-obj-era" id="ar-obj-era">—</div></div>
     <div class="ar-obj-emoji" id="ar-obj-emoji">🏛</div>
@@ -815,19 +822,19 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
     <div class="ar-card">
       <div class="ar-card-hdr">
         <div class="ar-card-ico" id="ar-r-ico">🏛</div>
-        <div><div class="ar-card-type" id="ar-r-type">✨ Identified</div><div class="ar-card-name" id="ar-r-name">—</div></div>
+        <div><div class="ar-card-type" id="ar-r-type">✨ 인식됨</div><div class="ar-card-name" id="ar-r-name">—</div></div>
       </div>
       <div class="ar-card-desc" id="ar-r-desc">—</div>
-      <button class="ar-card-btn" id="ar-r-btn" onclick="goQuestAR()">⚡ Start Quest</button>
+      <button class="ar-card-btn" id="ar-r-btn" onclick="goQuestAR()">⚡ 퀘스트 시작</button>
     </div>
   </div>
   <button class="ar-sim-btn" id="ar-sim-btn" onclick="simAR()">
     <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg>
-    Simulate: Rosetta Stone
+    시뮬레이션: 로제타 스톤
   </button>
 </div>
 
-<!-- ── QUEST OVERLAY (full phone) ── -->
+<!-- ── 퀘스트 오버레이 ── -->
 <div class="quest-overlay" id="quest-overlay">
   <div class="q-hero">
     <img id="q-img" src="" alt="">
@@ -844,151 +851,164 @@ html,body{height:100%;background:#000;display:flex;align-items:center;justify-co
   </div>
 </div>
 
-<!-- ── RANK ── -->
+<!-- ── 랭킹 ── -->
 <div class="view" id="view-rank" style="padding:20px">
-  <div class="lb-title">Leaderboard 🏆</div>
-  <div class="lb-sub">Live · London Explorer · Updated every 5 min</div>
+  <div class="lb-title">리더보드 🏆</div>
+  <div class="lb-sub">실시간 · 런던 익스플로러 · 5분마다 업데이트</div>
   <div class="lb-filter-row">
-    <div class="lb-filter on" onclick="lbFilter(this)">Today</div>
-    <div class="lb-filter" onclick="lbFilter(this)">This Week</div>
-    <div class="lb-filter" onclick="lbFilter(this)">All Time</div>
-    <div class="lb-filter" onclick="lbFilter(this)">Friends</div>
+    <div class="lb-filter on" onclick="lbFilter(this)">오늘</div>
+    <div class="lb-filter" onclick="lbFilter(this)">이번 주</div>
+    <div class="lb-filter" onclick="lbFilter(this)">전체</div>
+    <div class="lb-filter" onclick="lbFilter(this)">친구</div>
   </div>
   <div class="my-rank-card">
     <div class="my-rank-num">#4</div>
-    <div class="my-rank-ava">Y</div>
+    <div class="my-rank-ava">나</div>
     <div class="my-rank-info">
-      <div class="my-rank-name">You · 🇰🇷</div>
-      <div class="my-rank-pts" id="my-pts-disp">320 pts · 3 quests done</div>
+      <div class="my-rank-name">나 · 🇰🇷</div>
+      <div class="my-rank-pts" id="my-pts-disp">320 pt · 퀘스트 3개 완료</div>
     </div>
-    <div class="my-rank-badge">↑ Rising</div>
+    <div class="my-rank-badge">↑ 상승 중</div>
   </div>
   <div class="lb-list" id="lb-list"></div>
 </div>
 
-<!-- ── REWARDS ── -->
+<!-- ── 리워드 ── -->
 <div class="view" id="view-rewards" style="padding:20px">
-  <div class="rw-title">My Wallet 🎁</div>
-  <div class="rw-sub">Earned coupons & explorer rewards</div>
+  <div class="rw-title">내 지갑 🎁</div>
+  <div class="rw-sub">획득한 쿠폰 & 탐험 리워드</div>
   <div class="pass-active">
-    <div class="pa-top"><div class="pa-badge">London City Pass ✓</div><div class="pa-exp">Expires 23 May</div></div>
-    <div class="pa-name">Active Explorer</div>
-    <div class="pa-sub">Bloomsbury · British Museum area</div>
+    <div class="pa-top"><div class="pa-badge">런던 시티 패스 ✓</div><div class="pa-exp">5월 23일 만료</div></div>
+    <div class="pa-name">활성 탐험가</div>
+    <div class="pa-sub">블룸즈버리 · 대영박물관 구역</div>
     <div class="pa-stats">
-      <div><div class="pa-sv" id="wallet-pts">320</div><div class="pa-sl">Points</div></div>
-      <div style="margin-left:18px"><div class="pa-sv">3</div><div class="pa-sl">Quests</div></div>
-      <div style="margin-left:18px"><div class="pa-sv">3</div><div class="pa-sl">Coupons</div></div>
+      <div><div class="pa-sv" id="wallet-pts">320</div><div class="pa-sl">포인트</div></div>
+      <div style="margin-left:18px"><div class="pa-sv">3</div><div class="pa-sl">퀘스트</div></div>
+      <div style="margin-left:18px"><div class="pa-sv">3</div><div class="pa-sl">쿠폰</div></div>
     </div>
   </div>
-  <div class="rw-sec">Earned Coupons</div>
+
+  <div class="rw-sec">획득한 쿠폰</div>
+
+  <!-- 쿠폰 1: 출처와 태그를 같은 행에 배치 -->
   <div class="coupon fc">
-    <div class="coupon-tag">Ready to Use</div>
-    <div class="coupon-from">☕ Museum Café · British Museum</div>
-    <div class="coupon-name">Free Hot Drink — Any Size</div>
-    <button class="coupon-btn" onclick="openPaywall()">Show Barcode →</button>
+    <div class="coupon-header">
+      <div class="coupon-from">☕ 뮤지엄 카페 · 대영박물관</div>
+      <div class="coupon-tag">바로 사용 가능</div>
+    </div>
+    <div class="coupon-name">무료 음료 — 사이즈 무관</div>
+    <button class="coupon-btn" onclick="openPaywall()">바코드 보기 →</button>
   </div>
+
+  <!-- 쿠폰 2 -->
   <div class="coupon cc">
-    <div class="coupon-tag">Valid 7 Days</div>
-    <div class="coupon-from">🖼 National Gallery</div>
-    <div class="coupon-name">Audio Guide — Complimentary Access</div>
-    <button class="coupon-btn" onclick="openPaywall()">Claim →</button>
+    <div class="coupon-header">
+      <div class="coupon-from">🖼 내셔널 갤러리</div>
+      <div class="coupon-tag">7일 유효</div>
+    </div>
+    <div class="coupon-name">오디오 가이드 — 무료 이용</div>
+    <button class="coupon-btn" onclick="openPaywall()">쿠폰 받기 →</button>
   </div>
+
+  <!-- 쿠폰 3 -->
   <div class="coupon qc">
-    <div class="coupon-tag">Rank Reward</div>
-    <div class="coupon-from">⚡ Quest Completed</div>
-    <div class="coupon-name">Museum Shop — 15% Off Any Purchase</div>
-    <button class="coupon-btn" onclick="openPaywall()">Use →</button>
+    <div class="coupon-header">
+      <div class="coupon-from">⚡ 퀘스트 완료</div>
+      <div class="coupon-tag">랭킹 리워드</div>
+    </div>
+    <div class="coupon-name">뮤지엄 숍 — 모든 구매 15% 할인</div>
+    <button class="coupon-btn" onclick="openPaywall()">사용하기 →</button>
   </div>
+
   <div class="more-cities">
-    <div class="mc-title">🌍 Add Another City?</div>
-    <div class="mc-sub">Your adventure doesn't stop here.</div>
+    <div class="mc-title">🌍 다른 도시도 추가할까요?</div>
+    <div class="mc-sub">탐험은 여기서 끝이 아닙니다.</div>
     <div class="mc-row">
-      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1084/160/110" alt=""><div class="mc-city-name">Paris</div><div class="mc-city-price">£4.99</div></div>
-      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1031/160/110" alt=""><div class="mc-city-name">Tokyo</div><div class="mc-city-price">£4.99</div></div>
-      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1079/160/110" alt=""><div class="mc-city-name">Barcelona</div><div class="mc-city-price">£4.99</div></div>
-      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1076/160/110" alt=""><div class="mc-city-name">New York</div><div class="mc-city-price">£4.99</div></div>
+      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1084/160/110" alt=""><div class="mc-city-name">파리</div><div class="mc-city-price">£4.99</div></div>
+      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1031/160/110" alt=""><div class="mc-city-name">도쿄</div><div class="mc-city-price">£4.99</div></div>
+      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1079/160/110" alt=""><div class="mc-city-name">바르셀로나</div><div class="mc-city-price">£4.99</div></div>
+      <div class="mc-city" onclick="openPaywall()"><img class="mc-city-img" src="https://picsum.photos/id/1076/160/110" alt=""><div class="mc-city-name">뉴욕</div><div class="mc-city-price">£4.99</div></div>
     </div>
   </div>
 </div>
 
 </div><!-- /content -->
 
-<!-- TABBAR -->
+<!-- 탭바 -->
 <div class="tabbar">
   <button class="tab-btn active" id="tab-home" onclick="switchTab('home')">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span class="tab-label">Home</span>
+    <span class="tab-label">홈</span>
   </button>
   <button class="tab-btn" id="tab-map" onclick="switchTab('map')">
     <svg viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-    <span class="tab-label">Map</span>
+    <span class="tab-label">지도</span>
   </button>
   <button class="tab-btn" id="tab-ar" onclick="openAR(null)">
     <svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg>
-    <span class="tab-label">AR Scan</span>
+    <span class="tab-label">AR 스캔</span>
   </button>
   <button class="tab-btn" id="tab-rank" onclick="switchTab('rank')">
     <svg viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-    <span class="tab-label">Ranking</span>
+    <span class="tab-label">랭킹</span>
   </button>
   <button class="tab-btn" id="tab-rewards" onclick="switchTab('rewards')">
     <svg viewBox="0 0 24 24"><path d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
-    <span class="tab-label">Rewards</span>
+    <span class="tab-label">리워드</span>
   </button>
 </div>
 
 </div><!-- /phone -->
 <script>
-/* ─── DATA ─── */
 const SPOTS=[
-  {id:1,name:'Tower Bridge',cat:'outdoor',emoji:'🌉',dist:'1.2km',pts:100,today:'8.4k',
+  {id:1,name:'타워 브리지',cat:'outdoor',emoji:'🌉',dist:'1.2km',pts:100,today:'8.4k',
    lat:51.5055,lng:-0.0754,near:false,img:'https://picsum.photos/id/1043/400/300',
-   desc:'Opened in 1894, two bascule spans weigh 1,000 tons each and rise in 60 seconds. Walk within 50m — GPS detects your arrival automatically.',
-   trigger:'gps',steps:['Walk towards Tower Bridge','App detects you within 50m','Quest unlocks — no tapping needed'],
-   cta:'⚡ Navigate & Start Quest',ctaCls:'gps',
-   arData:{name:'Tower Bridge',era:'1894 · Victorian Gothic',emoji:'🌉',type:'📍 GPS Detected · 42m away',desc:'11,000 tons of steel, 8 years to build. Find the hidden Victorian crest inside the tower to complete step 4.',pts:100},
-   quest:{loc:'📍 Tower Bridge · South Bank',name:'Victorian Secrets',img:'https://picsum.photos/id/1043/400/300',
-     q:'How long did Tower Bridge take to build?',opts:['A. 4 years','B. 6 years','C. 8 years','D. 12 years'],ans:2,pts:100,reward:'🏰 Tower Bridge badge — now in your Rewards tab!'}},
-  {id:2,name:'Rosetta Stone',cat:'indoor',emoji:'🪨',dist:'Inside',pts:150,today:'2.1k',
+   desc:'1894년에 개통된 두 개의 도개교는 각각 1,000톤이며 60초 만에 들어 올려집니다. 50m 이내로 걸어가면 GPS가 자동으로 도착을 감지합니다.',
+   trigger:'gps',steps:['타워 브리지 방향으로 걸어가세요','50m 이내에서 앱이 자동 감지합니다','퀘스트 잠금 해제 — 탭 불필요'],
+   cta:'⚡ 내비게이션 & 퀘스트 시작',ctaCls:'gps',
+   arData:{name:'타워 브리지',era:'1894 · 빅토리아 고딕',emoji:'🌉',type:'📍 GPS 감지됨 · 42m 거리',desc:'강철 11,000톤, 8년에 걸쳐 건설. 타워 내부에 숨겨진 빅토리아 문장을 찾아 4단계를 완료하세요.',pts:100},
+   quest:{loc:'📍 타워 브리지 · 사우스뱅크',name:'빅토리아의 비밀',img:'https://picsum.photos/id/1043/400/300',
+     q:'타워 브리지를 건설하는 데 얼마나 걸렸나요?',opts:['A. 4년','B. 6년','C. 8년','D. 12년'],ans:2,pts:100,reward:'🏰 타워 브리지 배지 획득 — 리워드 탭에서 확인하세요!'}},
+  {id:2,name:'로제타 스톤',cat:'indoor',emoji:'🪨',dist:'실내',pts:150,today:'2.1k',
    lat:51.5194,lng:-0.1270,near:true,img:'https://picsum.photos/id/1040/400/300',
-   desc:'Carved in 196 BC, it unlocked 3,000 years of Egyptian history. Open AR Scan and point your camera — Gemini identifies it in ~2 seconds.',
-   trigger:'cam',steps:['Tap "AR Scan" tab below','Point camera at the Rosetta Stone','Gemini identifies it → quest begins'],
-   cta:'📸 Open AR Camera & Scan',ctaCls:'cam',
-   arData:{name:'Rosetta Stone',era:'196 BC · Egyptian Sculpture',emoji:'🪨',type:'✨ Identified · British Museum, Room 4',desc:'The same decree in three scripts. Champollion spent 20 years deciphering it. Five-step quest through ancient Egypt awaits.',pts:150},
-   quest:{loc:'📍 British Museum · Room 4',name:'Rosetta Stone Mystery',img:'https://picsum.photos/id/1040/400/300',
-     q:'The Rosetta Stone was discovered in 1799. Who found it?',opts:['A. British archaeologists','B. Napoleon\'s soldiers','C. Egyptian historians','D. Thomas Young'],ans:1,pts:150,reward:'☕ Free hot drink at Museum Café — check Rewards tab!'}},
-  {id:3,name:'Elgin Marbles',cat:'indoor',emoji:'🏛',dist:'Inside',pts:120,today:'1.8k',
+   desc:'기원전 196년에 새겨진 이 돌은 3,000년의 이집트 역사를 해독했습니다. AR 스캔을 열고 카메라를 가리키면 Gemini가 약 2초 만에 인식합니다.',
+   trigger:'cam',steps:['"AR 스캔" 탭을 누르세요','로제타 스톤에 카메라를 겨냥하세요','Gemini가 인식 → 퀘스트 시작'],
+   cta:'📸 AR 카메라 열기 & 스캔',ctaCls:'cam',
+   arData:{name:'로제타 스톤',era:'기원전 196 · 이집트 조각',emoji:'🪨',type:'✨ 인식됨 · 대영박물관 4전시실',desc:'세 가지 문자로 새겨진 같은 칙령. 샹폴리옹이 해독하는 데 20년이 걸렸습니다. 고대 이집트를 통한 5단계 퀘스트가 기다립니다.',pts:150},
+   quest:{loc:'📍 대영박물관 · 4전시실',name:'로제타 스톤의 미스터리',img:'https://picsum.photos/id/1040/400/300',
+     q:'로제타 스톤은 1799년에 발견되었습니다. 누가 발견했나요?',opts:['A. 영국 고고학자들','B. 나폴레옹의 병사들','C. 이집트 역사학자들','D. 토마스 영'],ans:1,pts:150,reward:'☕ 뮤지엄 카페 무료 음료 — 리워드 탭에서 확인하세요!'}},
+  {id:3,name:'엘긴 마블스',cat:'indoor',emoji:'🏛',dist:'실내',pts:120,today:'1.8k',
    lat:51.5195,lng:-0.1268,near:true,img:'https://picsum.photos/id/1059/400/300',
-   desc:'Carved 447 BC. Open AR Scan and aim at these 2,500-year-old friezes — AI narrates the ongoing London vs Athens debate.',
-   trigger:'cam',steps:['Tap "AR Scan" tab below','Aim camera at the marble sculptures','AI gives historical context + debate'],
-   cta:'📸 Open AR Camera & Scan',ctaCls:'cam',
-   arData:{name:'Elgin Marbles',era:'447 BC · Parthenon, Athens',emoji:'🏛',type:'✨ Identified · British Museum, Room 18',desc:'Half in London, half in Athens. Which side do you take? Earn your stance badge after completing the quest.',pts:120},
-   quest:{loc:'📍 British Museum · Room 18',name:'Whose Marbles?',img:'https://picsum.photos/id/1059/400/300',
-     q:'The Elgin Marbles originally adorned which Greek landmark?',opts:['A. The Colosseum','B. The Acropolis','C. The Olympieion','D. Temple of Hephaestus'],ans:1,pts:120,reward:'🏛 Cultural Debate badge earned!'}},
-  {id:4,name:'Trafalgar Square',cat:'outdoor',emoji:'🦁',dist:'2.8km',pts:80,today:'12k',
+   desc:'기원전 447년에 조각되었습니다. AR 스캔을 열고 2,500년 된 프리즈에 겨냥하면 AI가 런던 vs 아테네 논쟁을 설명해 줍니다.',
+   trigger:'cam',steps:['"AR 스캔" 탭을 누르세요','대리석 조각에 카메라를 겨냥하세요','AI가 역사적 맥락 + 논쟁을 설명합니다'],
+   cta:'📸 AR 카메라 열기 & 스캔',ctaCls:'cam',
+   arData:{name:'엘긴 마블스',era:'기원전 447 · 파르테논, 아테네',emoji:'🏛',type:'✨ 인식됨 · 대영박물관 18전시실',desc:'절반은 런던, 절반은 아테네에 있습니다. 당신은 어느 편인가요? 퀘스트 완료 후 입장 배지를 획득하세요.',pts:120},
+   quest:{loc:'📍 대영박물관 · 18전시실',name:'누구의 마블스?',img:'https://picsum.photos/id/1059/400/300',
+     q:'엘긴 마블스는 원래 어떤 그리스 랜드마크를 장식했나요?',opts:['A. 콜로세움','B. 아크로폴리스','C. 올림피에이온','D. 헤파이스토스 신전'],ans:1,pts:120,reward:'🏛 문화 논쟁 배지 획득!'}},
+  {id:4,name:'트라팔가 광장',cat:'outdoor',emoji:'🦁',dist:'2.8km',pts:80,today:'12k',
    lat:51.5080,lng:-0.1281,near:false,img:'https://picsum.photos/id/1036/400/300',
-   desc:'Heart of London since 1844. Walk into the square — GPS auto-detects your entry and triggers a hidden-detail quest instantly.',
-   trigger:'gps',steps:['Walk to Trafalgar Square','Enter the square area','Quest starts — find what 95% of visitors miss'],
-   cta:'⚡ Navigate & Start Quest',ctaCls:'gps',
-   arData:{name:'Trafalgar Square',era:'1844 · Central London',emoji:'🦁',type:'📍 GPS Detected · Zone entered',desc:'Four bronze lions added in 1867. The hidden plaque at the column base — can you find it?',pts:80},
-   quest:{loc:'📍 Trafalgar Square · Central',name:'Square of Secrets',img:'https://picsum.photos/id/1036/400/300',
-     q:'How tall is Nelson\'s Column from base to tip?',opts:['A. 33.5 metres','B. 44.2 metres','C. 51.6 metres','D. 67.3 metres'],ans:2,pts:80,reward:'🦁 Trafalgar Explorer badge unlocked!'}},
-  {id:5,name:'The Breakfast Club',cat:'food',emoji:'🥞',dist:'320m',pts:50,today:'340',
+   desc:'1844년부터 런던의 심장부입니다. 광장에 걸어 들어가면 GPS가 자동으로 입장을 감지하고 즉시 숨겨진 디테일 퀘스트를 시작합니다.',
+   trigger:'gps',steps:['트라팔가 광장으로 이동하세요','광장 구역에 입장하세요','퀘스트 시작 — 방문자의 95%가 놓치는 것을 찾으세요'],
+   cta:'⚡ 내비게이션 & 퀘스트 시작',ctaCls:'gps',
+   arData:{name:'트라팔가 광장',era:'1844 · 런던 중심부',emoji:'🦁',type:'📍 GPS 감지됨 · 구역 입장',desc:'청동 사자 4마리는 1867년에 추가되었습니다. 기둥 하단의 숨겨진 명판을 찾을 수 있나요?',pts:80},
+   quest:{loc:'📍 트라팔가 광장 · 중심부',name:'광장의 비밀',img:'https://picsum.photos/id/1036/400/300',
+     q:'넬슨 기둥의 높이는 밑에서 꼭대기까지 얼마인가요?',opts:['A. 33.5미터','B. 44.2미터','C. 51.6미터','D. 67.3미터'],ans:2,pts:80,reward:'🦁 트라팔가 탐험가 배지 획득!'}},
+  {id:5,name:'더 브렉퍼스트 클럽',cat:'food',emoji:'🥞',dist:'320m',pts:50,today:'340',
    lat:51.5201,lng:-0.1285,near:true,img:'https://picsum.photos/id/1080/400/300',
-   desc:'London\'s most Instagrammed all-day breakfast. Walk within 30m — 10% discount coupon unlocks automatically in Rewards tab.',
-   trigger:'gps',steps:['Walk within 30m of the restaurant','10% coupon appears in Rewards tab','Show screen at the counter'],
-   cta:'🎟 Navigate · Coupon Auto-unlocks',ctaCls:'food-c',
-   arData:{name:'The Breakfast Club',era:'Restaurant · Bloomsbury',emoji:'🥞',type:'📍 GPS Detected · 28m away',desc:'Full English, pancakes, and the best coffee in Bloomsbury. 10% coupon is active — check your Rewards tab.',pts:50},
-   quest:{loc:'📍 The Breakfast Club · Bloomsbury',name:'Breakfast Trail',img:'https://picsum.photos/id/1080/400/300',
-     q:'The Breakfast Club has locations across London. How many?',opts:['A. 3','B. 5','C. 7','D. 9'],ans:2,pts:50,reward:'🥞 10% discount coupon — check Rewards tab!'}},
-  {id:6,name:'Borough Market',cat:'food',emoji:'🧀',dist:'3.1km',pts:60,today:'5.2k',
+   desc:'런던에서 가장 인스타그래머블한 올데이 브렉퍼스트. 30m 이내로 걸어가면 10% 할인 쿠폰이 리워드 탭에 자동으로 나타납니다.',
+   trigger:'gps',steps:['레스토랑 30m 이내로 걸어가세요','10% 쿠폰이 리워드 탭에 나타납니다','계산대에서 화면을 보여주세요'],
+   cta:'🎟 내비게이션 · 쿠폰 자동 잠금 해제',ctaCls:'food-c',
+   arData:{name:'더 브렉퍼스트 클럽',era:'레스토랑 · 블룸즈버리',emoji:'🥞',type:'📍 GPS 감지됨 · 28m 거리',desc:'풀 잉글리시, 팬케이크, 블룸즈버리 최고의 커피. 10% 쿠폰이 활성화되어 있습니다 — 리워드 탭에서 확인하세요.',pts:50},
+   quest:{loc:'📍 더 브렉퍼스트 클럽 · 블룸즈버리',name:'브렉퍼스트 트레일',img:'https://picsum.photos/id/1080/400/300',
+     q:'더 브렉퍼스트 클럽은 런던 전역에 몇 개의 지점이 있나요?',opts:['A. 3개','B. 5개','C. 7개','D. 9개'],ans:2,pts:50,reward:'🥞 10% 할인 쿠폰 — 리워드 탭에서 확인하세요!'}},
+  {id:6,name:'버로우 마켓',cat:'food',emoji:'🧀',dist:'3.1km',pts:60,today:'5.2k',
    lat:51.5052,lng:-0.0910,near:false,img:'https://picsum.photos/id/1070/400/300',
-   desc:'London\'s oldest market, trading since the 12th century. Walk in — a 5-stall food trail auto-starts.',
-   trigger:'gps',steps:['Head to Borough Market','Walk into the market area','5-stall trail starts — collect stamps'],
-   cta:'🍽 Navigate · Trail Auto-starts',ctaCls:'food-c',
-   arData:{name:'Borough Market',era:'12th century · Southwark',emoji:'🧀',type:'📍 GPS Detected · Market zone',desc:'Complete all 5 stall stamps to earn a £5 partner voucher.',pts:60},
-   quest:{loc:'📍 Borough Market · Southwark',name:'Food Trail',img:'https://picsum.photos/id/1070/400/300',
-     q:'Borough Market has traded on this site since which century?',opts:['A. 8th century','B. 10th century','C. 12th century','D. 14th century'],ans:2,pts:60,reward:'🧀 £5 stall voucher — check Rewards tab!'}}
+   desc:'12세기부터 거래해온 런던에서 가장 오래된 시장. 걸어 들어가면 5개 스탠드 푸드 트레일이 자동으로 시작됩니다.',
+   trigger:'gps',steps:['버로우 마켓으로 이동하세요','시장 구역에 입장하세요','5개 스탠드 트레일 시작 — 스탬프 모으기'],
+   cta:'🍽 내비게이션 · 트레일 자동 시작',ctaCls:'food-c',
+   arData:{name:'버로우 마켓',era:'12세기 · 서더크',emoji:'🧀',type:'📍 GPS 감지됨 · 마켓 구역',desc:'5개 스탠드 스탬프를 모두 모으면 £5 파트너 바우처를 획득합니다.',pts:60},
+   quest:{loc:'📍 버로우 마켓 · 서더크',name:'푸드 트레일',img:'https://picsum.photos/id/1070/400/300',
+     q:'버로우 마켓은 몇 세기부터 이 자리에서 거래를 시작했나요?',opts:['A. 8세기','B. 10세기','C. 12세기','D. 14세기'],ans:2,pts:60,reward:'🧀 £5 스탠드 바우처 — 리워드 탭에서 확인하세요!'}}
 ];
 
 const RANK_DATA=[
@@ -999,54 +1019,35 @@ const RANK_DATA=[
   {pos:6,name:'James L.',country:'🇬🇧',pts:210,color:'#b57bff'},
 ];
 
-/* ─── STATE ─── */
 let map,mapInited=false,currentSpot=null,proxSpot=null;
-let arIdx=0,answered=false,drawerOpen=false,myScore=320,currentLang='EN';
+let arIdx=0,answered=false,drawerOpen=false,myScore=320,currentLang='KO';
 
-/* ─── INIT ─── */
 window.addEventListener('load',()=>{
   buildHomeList(SPOTS);
   buildDrawerList(SPOTS);
   buildRankList();
-  // Show onboarding after 800ms on first visit
-  setTimeout(startOnboarding, 800);
+  setTimeout(startOnboarding,800);
 });
 
-/* ─── ONBOARDING ─── */
 const OB_STEPS=[
-  {tab:'home',title:'Welcome to PlaySpot 👋',desc:'Explore London like a game. Complete quests, earn rewards, beat your friends.',next:'Got it · Show me around'},
-  {tab:'map',title:'Your adventure map 🗺️',desc:'Blue markers = Outdoor (GPS). Yellow = Indoor (Camera). Orange = Food rewards. Tap any marker to see details.',next:'Next →'},
-  {tab:'ar',title:'Point camera at anything 📸',desc:'For indoor spots like the Rosetta Stone — just open this tab and aim your camera. Gemini AI does the rest.',next:'Next →'},
-  {tab:'rank',title:'Compete with travellers 🏆',desc:'Every quest earns points. Climb the global leaderboard and unlock exclusive rewards.',next:'Let\'s go! →'},
+  {tab:'home',title:'PlaySpot에 오신 것을 환영합니다 👋',desc:'런던을 게임처럼 탐험하세요. 퀘스트를 완료하고, 리워드를 획득하고, 친구들을 이겨보세요.',next:'알겠어요 · 둘러볼게요'},
+  {tab:'map',title:'나의 탐험 지도 🗺️',desc:'파란 마커 = 야외(GPS). 노란 마커 = 실내(카메라). 주황 마커 = 음식 리워드. 마커를 탭하면 상세 정보를 확인할 수 있어요.',next:'다음 →'},
+  {tab:'ar',title:'무엇이든 카메라로 가리켜보세요 📸',desc:'로제타 스톤 같은 실내 스팟은 이 탭을 열고 카메라를 가리키기만 하면 됩니다. Gemini AI가 나머지를 알아서 해줍니다.',next:'다음 →'},
+  {tab:'rank',title:'여행자들과 경쟁하세요 🏆',desc:'퀘스트마다 포인트를 획득합니다. 글로벌 리더보드를 오르며 독점 리워드를 잠금 해제하세요.',next:'시작하기! →'},
 ];
 let obStep=0;
-function startOnboarding(){
-  showObStep(0);
-}
+function startOnboarding(){showObStep(0)}
 function showObStep(i){
-  const overlay=document.getElementById('ob-overlay');
-  const dim=document.getElementById('ob-dim');
-  const tip=document.getElementById('ob-tip');
+  const overlay=document.getElementById('ob-overlay'),dim=document.getElementById('ob-dim'),tip=document.getElementById('ob-tip');
   if(i>=OB_STEPS.length){endOnboarding();return;}
-  obStep=i;
-  const s=OB_STEPS[i];
-  overlay.classList.add('active');
-  dim.classList.add('show');
-  // Switch to the right tab so user sees context
+  obStep=i;const s=OB_STEPS[i];
+  overlay.classList.add('active');dim.classList.add('show');
   if(s.tab==='ar'){openAR(null);setTimeout(()=>positionTip(tip,s,i),300);return;}
   else if(s.tab!=='home'){switchTab(s.tab);}
   setTimeout(()=>positionTip(tip,s,i),200);
 }
 function positionTip(tip,s,i){
-  tip.innerHTML=`
-    <div class="ob-step">Step ${i+1} of ${OB_STEPS.length}</div>
-    <div class="ob-title">${s.title}</div>
-    <div class="ob-desc">${s.desc}</div>
-    <div class="ob-btns">
-      <button class="ob-skip" onclick="endOnboarding()">Skip</button>
-      <button class="ob-next" onclick="nextObStep()">${s.next}</button>
-    </div>`;
-  // Position based on step
+  tip.innerHTML=`<div class="ob-step">${i+1} / ${OB_STEPS.length} 단계</div><div class="ob-title">${s.title}</div><div class="ob-desc">${s.desc}</div><div class="ob-btns"><button class="ob-skip" onclick="endOnboarding()">건너뛰기</button><button class="ob-next" onclick="nextObStep()">${s.next}</button></div>`;
   const positions=[
     {top:'30%',left:'50%',transform:'translateX(-50%)',arrowClass:'arrow-down'},
     {top:'55%',left:'50%',transform:'translateX(-50%)',arrowClass:'arrow-down'},
@@ -1060,42 +1061,24 @@ function positionTip(tip,s,i){
 }
 function nextObStep(){
   document.getElementById('ob-tip').classList.remove('show');
-  if(obStep===2)closeAR(); // close AR after AR step
+  if(obStep===2)closeAR();
   setTimeout(()=>showObStep(obStep+1),200);
 }
 function endOnboarding(){
   document.getElementById('ob-dim').classList.remove('show');
   document.getElementById('ob-tip').classList.remove('show');
   document.getElementById('ob-overlay').classList.remove('active');
-  closeAR();
-  switchTab('home');
+  closeAR();switchTab('home');
 }
 
-/* ─── HOME LIST ─── */
 function buildHomeList(spots){
-  const el=document.getElementById('home-list');
-  el.innerHTML='';
+  const el=document.getElementById('home-list');el.innerHTML='';
   spots.forEach(s=>{
     const tc=s.cat==='indoor'?'#c8d400':s.cat==='food'?'var(--orange)':'var(--blue)';
     const tb=s.cat==='indoor'?'var(--accent-dim)':s.cat==='food'?'var(--orange-dim)':'var(--blue-dim)';
-    const tTag=s.trigger==='cam'
-      ?`<span class="trigger-tag t-cam">📸 Camera</span>`
-      :`<span class="trigger-tag ${s.cat==='food'?'t-food':'t-gps'}">📍 GPS</span>`;
-    const typeLbl=s.cat==='indoor'?'🏛 Indoor':s.cat==='food'?'🍽 Food & Drink':'🌿 Outdoor';
-    el.innerHTML+=`<div class="scard" onclick="openSpotDetail(${s.id})">
-      <img class="scard-img" src="${s.img}" alt="">
-      <div class="scard-body">
-        <div>
-          <div class="scard-type" style="background:${tb};color:${tc}">${typeLbl}</div>
-          <div class="scard-name">${s.name}</div>
-          <div class="scard-sub">${s.dist} · ${s.today} today</div>
-        </div>
-        <div class="scard-bottom">
-          <div class="scard-pts" style="color:${tc}">+${s.pts} pts</div>
-          ${tTag}
-        </div>
-      </div>
-    </div>`;
+    const tTag=s.trigger==='cam'?`<span class="trigger-tag t-cam">📸 카메라</span>`:`<span class="trigger-tag ${s.cat==='food'?'t-food':'t-gps'}">📍 GPS</span>`;
+    const typeLbl=s.cat==='indoor'?'🏛 실내':s.cat==='food'?'🍽 음식 & 음료':'🌿 야외';
+    el.innerHTML+=`<div class="scard" onclick="openSpotDetail(${s.id})"><img class="scard-img" src="${s.img}" alt=""><div class="scard-body"><div><div class="scard-type" style="background:${tb};color:${tc}">${typeLbl}</div><div class="scard-name">${s.name}</div><div class="scard-sub">${s.dist} · 오늘 ${s.today}명</div></div><div class="scard-bottom"><div class="scard-pts" style="color:${tc}">+${s.pts} pt</div>${tTag}</div></div></div>`;
   });
 }
 function filterHome(el,cat){
@@ -1104,66 +1087,42 @@ function filterHome(el,cat){
   buildHomeList(cat==='all'?SPOTS:SPOTS.filter(s=>s.cat===cat));
 }
 
-/* ─── DRAWER LIST ─── */
 function buildDrawerList(spots){
-  const el=document.getElementById('drawer-list');
-  el.innerHTML='';
-  document.getElementById('drawer-count').textContent=spots.length+' found';
+  const el=document.getElementById('drawer-list');el.innerHTML='';
+  document.getElementById('drawer-count').textContent=spots.length+'개 발견';
   spots.forEach(s=>{
     const tc=s.cat==='indoor'?'var(--accent)':s.cat==='food'?'var(--orange)':'var(--blue)';
-    const tTag=s.trigger==='cam'
-      ?`<span class="trigger-tag t-cam" style="font-size:9px;padding:2px 6px;border-radius:8px">📸 Camera</span>`
-      :`<span class="trigger-tag ${s.cat==='food'?'t-food':'t-gps'}" style="font-size:9px;padding:2px 6px;border-radius:8px">📍 GPS</span>`;
-    el.innerHTML+=`<div class="dspot${s.near?' near':''}" onclick="openSpotDetail(${s.id})">
-      <div class="dspot-icon ${s.cat}">${s.emoji}</div>
-      <div class="dspot-mid"><div class="dspot-name">${s.name}</div><div>${tTag}</div></div>
-      <div class="dspot-right">
-        <div class="dspot-dist">${s.dist}</div>
-        <div class="dspot-pts" style="color:${tc}">+${s.pts} pts</div>
-      </div>
-    </div>`;
+    const tTag=s.trigger==='cam'?`<span class="trigger-tag t-cam" style="font-size:9px;padding:2px 6px;border-radius:8px">📸 카메라</span>`:`<span class="trigger-tag ${s.cat==='food'?'t-food':'t-gps'}" style="font-size:9px;padding:2px 6px;border-radius:8px">📍 GPS</span>`;
+    el.innerHTML+=`<div class="dspot${s.near?' near':''}" onclick="openSpotDetail(${s.id})"><div class="dspot-icon ${s.cat}">${s.emoji}</div><div class="dspot-mid"><div class="dspot-name">${s.name}</div><div>${tTag}</div></div><div class="dspot-right"><div class="dspot-dist">${s.dist}</div><div class="dspot-pts" style="color:${tc}">+${s.pts} pt</div></div></div>`;
   });
 }
 
-/* ─── MAP INIT ─── */
 function initMap(){
   if(mapInited)return;mapInited=true;
   map=L.map('leaflet-map',{center:[51.515,-0.105],zoom:14,zoomControl:false,attributionControl:false});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
-  // GPS accuracy ring
   L.circleMarker([51.5194,-0.1270],{radius:22,color:'rgba(74,158,255,.2)',fillColor:'rgba(74,158,255,.05)',fillOpacity:1,weight:1}).addTo(map);
-  // User marker
   const uIcon=L.divIcon({className:'',html:'<div class="lf-user" style="position:relative"></div>',iconSize:[14,14],iconAnchor:[7,7]});
   L.marker([51.5194,-0.1270],{icon:uIcon,zIndexOffset:1000}).addTo(map);
   SPOTS.forEach(s=>{
     const icon=L.divIcon({className:'',html:`<div class="lf-mk ${s.cat}${s.near?' near':''}">${s.emoji}</div>`,iconSize:[42,42],iconAnchor:[21,21]});
     const mk=L.marker([s.lat,s.lng],{icon}).addTo(map);
-    const tHtml=s.trigger==='cam'?`<div class="pop-trigger cam">📸 Camera Recognition</div>`:`<div class="pop-trigger ${s.cat==='food'?'food-t':'gps'}">📍 GPS Auto-detect</div>`;
-    mk.bindPopup(`<div class="pop">
-      <div class="pop-tag ${s.cat}">${s.cat==='indoor'?'INDOOR':s.cat==='food'?'FOOD':'OUTDOOR'}</div>
-      <div class="pop-name">${s.name}</div>
-      <div class="pop-sub">${s.dist} · +${s.pts} pts · ${s.today} today</div>
-      ${tHtml}
-      <button class="pop-btn ${s.cat}" onclick="openSpotDetail(${s.id});document.querySelectorAll('.leaflet-popup-close-button').forEach(b=>b.click())">
-        ${s.trigger==='cam'?'📸 Open AR Camera →':'⚡ View Quest →'}
-      </button>
-    </div>`,{maxWidth:220,className:'lf-popup'});
+    const tHtml=s.trigger==='cam'?`<div class="pop-trigger cam">📸 카메라 인식</div>`:`<div class="pop-trigger ${s.cat==='food'?'food-t':'gps'}">📍 GPS 자동 감지</div>`;
+    mk.bindPopup(`<div class="pop"><div class="pop-tag ${s.cat}">${s.cat==='indoor'?'실내':s.cat==='food'?'음식':'야외'}</div><div class="pop-name">${s.name}</div><div class="pop-sub">${s.dist} · +${s.pts} pt · 오늘 ${s.today}명</div>${tHtml}<button class="pop-btn ${s.cat}" onclick="openSpotDetail(${s.id});document.querySelectorAll('.leaflet-popup-close-button').forEach(b=>b.click())">${s.trigger==='cam'?'📸 AR 카메라 열기 →':'⚡ 퀘스트 보기 →'}</button></div>`,{maxWidth:220,className:'lf-popup'});
   });
   setTimeout(()=>map.invalidateSize(),150);
 }
 
-/* ─── DRAWER TOGGLE ─── */
 function toggleDrawer(){
   drawerOpen=!drawerOpen;
   const d=document.getElementById('drawer');
   d.style.height=drawerOpen?'55%':'112px';
-  document.getElementById('expand-hint').textContent=drawerOpen?'↓ Pull down':'↑ Pull up';
+  document.getElementById('expand-hint').textContent=drawerOpen?'↓ 아래로 당기기':'↑ 위로 당기기';
   const offset=drawerOpen?'calc(55% + 10px)':'128px';
   document.getElementById('map-right').style.bottom=offset;
   document.getElementById('sim-panel').style.bottom=offset;
 }
 
-/* ─── SPOT DETAIL ─── */
 function openSpotDetail(id){
   currentSpot=SPOTS.find(s=>s.id===id);if(!currentSpot)return;
   const s=currentSpot;
@@ -1172,7 +1131,7 @@ function openSpotDetail(id){
   const badge=document.getElementById('ss-type');
   const tc=s.cat==='indoor'?'#c8d400':s.cat==='food'?'var(--orange)':'var(--blue)';
   const tb=s.cat==='indoor'?'var(--accent-dim)':s.cat==='food'?'var(--orange-dim)':'var(--blue-dim)';
-  badge.textContent=s.cat==='indoor'?'🏛 Indoor':s.cat==='food'?'🍽 Food':'🌿 Outdoor';
+  badge.textContent=s.cat==='indoor'?'🏛 실내':s.cat==='food'?'🍽 음식':'🌿 야외';
   badge.style.background=tb;badge.style.color=tc;
   document.getElementById('ss-dist').textContent=s.dist;
   document.getElementById('ss-pts').textContent='+'+s.pts;
@@ -1182,12 +1141,9 @@ function openSpotDetail(id){
   const tc2=s.trigger==='cam'?'cam':s.cat==='food'?'food-t':'gps';
   tb2.className='trig-box '+tc2;
   document.getElementById('ss-trig-icon').textContent=s.trigger==='cam'?'📸':s.cat==='food'?'🎟':'📍';
-  document.getElementById('ss-trig-title').textContent=s.trigger==='cam'?'How to trigger: Camera Recognition':'How to trigger: GPS Auto-detect';
+  document.getElementById('ss-trig-title').textContent=s.trigger==='cam'?'실행 방법: 카메라 인식':'실행 방법: GPS 자동 감지';
   document.getElementById('ss-trig-title').style.color=s.trigger==='cam'?'var(--accent)':s.cat==='food'?'var(--orange)':'var(--blue)';
-  document.getElementById('ss-trig-desc').textContent=s.trigger==='cam'
-    ?'Gemini Vision identifies the exhibit from your camera. No QR codes needed.'
-    :s.cat==='food'?'Walk close and your reward unlocks automatically.'
-    :'Walk close. GPS detects you without any action needed.';
+  document.getElementById('ss-trig-desc').textContent=s.trigger==='cam'?'Gemini Vision이 카메라로 전시물을 인식합니다. QR 코드 불필요.':s.cat==='food'?'가까이 걸어가면 리워드가 자동으로 잠금 해제됩니다.':'가까이 걸어가면 GPS가 아무 동작 없이 자동으로 감지합니다.';
   document.getElementById('ss-trig-steps').innerHTML=s.steps.map((st,i)=>`<div class="trig-step"><div class="trig-n">${i+1}</div><span>${st}</span></div>`).join('');
   const cta=document.getElementById('ss-cta');
   cta.textContent=s.cta;cta.className='ss-cta '+(s.trigger==='cam'?'cam':s.cat==='food'?'food-c':'gps');
@@ -1207,7 +1163,6 @@ function goFromSpot(){
   else openQuest(currentSpot);
 }
 
-/* ─── TAB SWITCH ─── */
 function switchTab(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+id).classList.add('active');
@@ -1216,18 +1171,16 @@ function switchTab(id){
   if(id==='map'){initMap();setTimeout(()=>{if(map)map.invalidateSize();},120);}
 }
 
-/* ─── FILTER MAP ─── */
 function filterMap(el,cat){
   document.querySelectorAll('.map-cat').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
   buildDrawerList(cat==='all'?SPOTS:SPOTS.filter(s=>s.cat===cat));
 }
 
-/* ─── PROXIMITY ─── */
 const PROX=[
-  {spotId:4,dist:'18m',sub:'GPS detected · Quest available',act:'Start →'},
-  {spotId:5,dist:'28m',sub:'GPS detected · Coupon ready',act:'Get →'},
-  {spotId:2,dist:'Inside',sub:'Camera trigger ready · Point & scan',act:'Scan →'},
+  {spotId:4,dist:'18m',sub:'GPS 감지됨 · 퀘스트 이용 가능',act:'시작 →'},
+  {spotId:5,dist:'28m',sub:'GPS 감지됨 · 쿠폰 준비 완료',act:'받기 →'},
+  {spotId:2,dist:'실내',sub:'카메라 트리거 준비 · 가리키고 스캔하세요',act:'스캔 →'},
 ];
 let proxIdx=0;
 function triggerProx(cat){
@@ -1237,7 +1190,7 @@ function triggerProx(cat){
   const card=document.getElementById('prox-card');
   card.className='prox-card '+spot.cat;
   document.getElementById('prox-icon').textContent=spot.emoji;
-  document.getElementById('prox-dist').textContent=spot.dist==='Inside'?'Inside':sc.dist+' away';
+  document.getElementById('prox-dist').textContent=spot.dist==='실내'?'실내':sc.dist+' 거리';
   document.getElementById('prox-name').textContent=spot.name;
   document.getElementById('prox-sub').textContent=sc.sub;
   document.getElementById('prox-action').textContent=sc.act;
@@ -1246,17 +1199,13 @@ function triggerProx(cat){
   clearTimeout(window._pt);window._pt=setTimeout(()=>banner.classList.remove('show'),5500);
   proxIdx++;
 }
-function proxGo(){
-  document.getElementById('prox-banner').classList.remove('show');
-  if(proxSpot)openSpotDetail(proxSpot.id);
-}
+function proxGo(){document.getElementById('prox-banner').classList.remove('show');if(proxSpot)openSpotDetail(proxSpot.id)}
 
-/* ─── AR ─── */
 function openAR(spot){
   const s=spot||SPOTS[1];
   document.getElementById('ar-cam-bg').style.backgroundImage=`url(${s?s.img.replace('400/300','400/844'):'https://picsum.photos/id/1040/400/844'})`;
   document.getElementById('ar-sweep').style.display='block';
-  document.getElementById('ar-hint-txt').textContent='Point at any landmark or exhibit';
+  document.getElementById('ar-hint-txt').textContent='랜드마크나 전시물에 카메라를 가리키세요';
   document.getElementById('ar-obj').classList.remove('show');
   document.getElementById('ar-result').classList.remove('show');
   document.getElementById('ar-sim-btn').style.display='flex';
@@ -1268,11 +1217,11 @@ function openAR(spot){
 function closeAR(){document.getElementById('ar-overlay').classList.remove('show')}
 function simAR(){
   const s=SPOTS[arIdx%SPOTS.length];
-  document.getElementById('ar-hint-txt').textContent='Gemini Vision analysing...';
+  document.getElementById('ar-hint-txt').textContent='Gemini Vision 분석 중...';
   document.getElementById('ar-sim-btn').style.display='none';
   setTimeout(()=>{
     document.getElementById('ar-sweep').style.display='none';
-    document.getElementById('ar-hint-txt').textContent='✓ Identified!';
+    document.getElementById('ar-hint-txt').textContent='✓ 인식 완료!';
     document.getElementById('ar-obj-name').textContent=s.arData.name;
     document.getElementById('ar-obj-era').textContent=s.arData.era;
     document.getElementById('ar-obj-emoji').textContent=s.arData.emoji;
@@ -1282,36 +1231,26 @@ function simAR(){
       document.getElementById('ar-r-type').textContent=s.arData.type;
       document.getElementById('ar-r-name').textContent=s.arData.name;
       document.getElementById('ar-r-desc').textContent=s.arData.desc;
-      document.getElementById('ar-r-btn').textContent=`⚡ Start Quest · +${s.arData.pts} pts`;
+      document.getElementById('ar-r-btn').textContent=`⚡ 퀘스트 시작 · +${s.arData.pts} pt`;
       document.getElementById('ar-result').classList.add('show');
     },500);
     arIdx++;
     setTimeout(()=>{
       document.getElementById('ar-sim-btn').style.display='flex';
       const next=SPOTS[arIdx%SPOTS.length];
-      document.getElementById('ar-sim-btn').lastChild.textContent=' Try next: '+next.name;
+      document.getElementById('ar-sim-btn').lastChild.textContent=' 다음 시도: '+next.name;
     },2100);
   },1700);
 }
-function goQuestAR(){
-  closeAR();
-  openQuest(SPOTS[(arIdx-1+SPOTS.length)%SPOTS.length]);
-}
+function goQuestAR(){closeAR();openQuest(SPOTS[(arIdx-1+SPOTS.length)%SPOTS.length])}
 
-/* ─── QUEST ─── */
 function openQuest(spot){
   const s=spot||SPOTS[0];const q=s.quest;
   document.getElementById('q-img').src=q.img;
   document.getElementById('q-loc').textContent=q.loc;
   document.getElementById('q-name').textContent=q.name;
   document.getElementById('q-prog').innerHTML=[0,1,2,3,4].map(i=>`<div class="q-dot ${i<2?'done':i===2?'now':''}"></div>`).join('');
-  document.getElementById('q-card').innerHTML=`
-    <div class="q-meta">
-      <div class="q-tag">Quiz · Step 3 of 5</div>
-      <div class="q-pts">+${q.pts}</div>
-    </div>
-    <div class="q-question">${q.q}</div>
-    <div class="q-opts">${q.opts.map((o,i)=>`<div class="q-opt" onclick="pickOpt(this,${i===q.ans},'${q.reward.replace(/'/g,"\\'")}',${q.pts})">${o}</div>`).join('')}</div>`;
+  document.getElementById('q-card').innerHTML=`<div class="q-meta"><div class="q-tag">퀴즈 · 5단계 중 3단계</div><div class="q-pts">+${q.pts}</div></div><div class="q-question">${q.q}</div><div class="q-opts">${q.opts.map((o,i)=>`<div class="q-opt" onclick="pickOpt(this,${i===q.ans},'${q.reward.replace(/'/g,"\\'")}',${q.pts})">${o}</div>`).join('')}</div>`;
   answered=false;
   document.getElementById('quest-overlay').classList.add('show');
 }
@@ -1324,15 +1263,9 @@ function pickOpt(el,ok,reward,pts){
     setTimeout(()=>{
       myScore+=pts;
       document.getElementById('score-val').textContent=myScore;
-      document.getElementById('my-pts-disp').textContent=myScore+' pts · '+Math.ceil(myScore/50)+' quests done';
+      document.getElementById('my-pts-disp').textContent=myScore+' pt · '+Math.ceil(myScore/50)+'개 퀘스트 완료';
       document.getElementById('wallet-pts').textContent=myScore;
-      document.getElementById('q-card').innerHTML=`<div class="q-success">
-        <div class="q-success-emoji">🎉</div>
-        <div class="q-success-pts">+${pts}</div>
-        <div class="q-success-sub">Points earned!</div>
-        <div class="q-reward-pill">🎁 ${reward}</div>
-        <button class="q-next" onclick="closeQuest();switchTab('rewards')">View My Rewards →</button>
-      </div>`;
+      document.getElementById('q-card').innerHTML=`<div class="q-success"><div class="q-success-emoji">🎉</div><div class="q-success-pts">+${pts}</div><div class="q-success-sub">포인트 획득!</div><div class="q-reward-pill">🎁 ${reward}</div><button class="q-next" onclick="closeQuest();switchTab('rewards')">내 리워드 보기 →</button></div>`;
     },500);
   }else{
     el.classList.add('no');
@@ -1340,25 +1273,17 @@ function pickOpt(el,ok,reward,pts){
   }
 }
 
-/* ─── RANK ─── */
 function buildRankList(){
   const medals=['🥇','🥈','🥉'];
-  document.getElementById('lb-list').innerHTML=RANK_DATA.map(r=>`<div class="lb-row ${r.pos<=3?'top':''}">
-    <div class="lb-medal">${medals[r.pos-1]||r.pos}</div>
-    <div class="lb-ava" style="background:${r.color}20;color:${r.color};border:1px solid ${r.color}40">${r.name.substring(0,2)}</div>
-    <div class="lb-name">${r.name} ${r.country}</div>
-    <div class="lb-score">${r.pts} pts</div>
-  </div>`).join('');
+  document.getElementById('lb-list').innerHTML=RANK_DATA.map(r=>`<div class="lb-row ${r.pos<=3?'top':''}"><div class="lb-medal">${medals[r.pos-1]||r.pos}</div><div class="lb-ava" style="background:${r.color}20;color:${r.color};border:1px solid ${r.color}40">${r.name.substring(0,2)}</div><div class="lb-name">${r.name} ${r.country}</div><div class="lb-score">${r.pts} pt</div></div>`).join('');
 }
 function lbFilter(el){document.querySelectorAll('.lb-filter').forEach(f=>f.classList.remove('on'));el.classList.add('on')}
 
-/* ─── PAYWALL ─── */
 function openPaywall(){document.getElementById('paywall').classList.add('show')}
 function closePaywall(){document.getElementById('paywall').classList.remove('show')}
 function selPlan(el){document.querySelectorAll('.pw-plan').forEach(p=>p.classList.remove('sel'));el.classList.add('sel')}
-function doPurchase(){closePaywall();alert('Payment: Stripe / Apple Pay / Google Pay')}
+function doPurchase(){closePaywall();alert('결제: Stripe / Apple Pay / Google Pay')}
 
-/* ─── SIDE MENU ─── */
 function openSM(){document.getElementById('side-menu').classList.add('open')}
 function closeSM(){document.getElementById('side-menu').classList.remove('open')}
 function setLang(el,code){
@@ -1368,10 +1293,8 @@ function setLang(el,code){
   setTimeout(closeSM,200);
 }
 
-/* ─── UTILS ─── */
 function recenter(){if(map)map.panTo([51.5194,-0.1270],{animate:true,duration:.7})}
 
-// Init
 buildRankList();
 </script>
 </body>
