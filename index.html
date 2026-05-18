@@ -34,29 +34,24 @@
 }
 
 html, body {
-  height: 100%; background: #000;
-  display: flex; align-items: center; justify-content: center;
+  height: 100%; background: var(--bg-base);
   font-family: 'Outfit', 'Pretendard', sans-serif;
   overflow: hidden; letter-spacing: -0.01em;
 }
 
 .phone {
-  width: 390px; height: 844px; max-height: 100vh;
+  width: 100%; height: 100vh;
   background: var(--bg-base);
   background-image: 
     radial-gradient(circle at 15% 50%, rgba(74, 158, 255, 0.05), transparent 40%),
     radial-gradient(circle at 85% 30%, rgba(212, 255, 0, 0.03), transparent 40%);
-  border-radius: 50px; overflow: hidden; position: relative;
+  border-radius: 0; overflow: hidden; position: relative;
   display: flex; flex-direction: column;
-  box-shadow: 0 0 0 12px #111, 0 50px 100px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.1);
 }
 
 ::-webkit-scrollbar { display: none; }
 
-.sb { display: flex; justify-content: space-between; align-items: center; padding: 16px 28px 0; flex-shrink: 0; z-index: 40; position: relative; }
-.sb-time { font-size: 15px; font-weight: 600; color: var(--txt1); }
-.sb-icons { display: flex; gap: 6px; align-items: center; color: var(--txt1); }
-.sb-icons svg { width: 16px; height: 16px; fill: currentColor; }
+
 
 .hdr { 
   display: flex; align-items: center; justify-content: space-between; 
@@ -601,13 +596,7 @@ html, body {
   <div class="ob-tooltip" id="ob-tip"></div>
 </div>
 
-<div class="sb">
-  <div class="sb-time">9:41</div>
-  <div class="sb-icons">
-    <svg viewBox="0 0 24 24"><path d="M1.5 8.5s5-6 10.5-6 10.5 6 10.5 6M5 12s3.5-4.5 7-4.5S19 12 19 12M8.5 15.5S10 14 12 14s3.5 1.5 3.5 1.5M12 19h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-    <svg viewBox="0 0 25 13"><rect x="0" y="1" width="22" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="1.5" y="2.5" width="16" height="8" rx="1.5" fill="currentColor"/><path d="M23 4.5v4a2 2 0 000-4z" fill="currentColor"/></svg>
-  </div>
-</div>
+
 
 <div class="hdr" id="main-hdr">
   <div class="hdr-logo" onclick="switchTab('home')">Play<span>Spot</span></div>
